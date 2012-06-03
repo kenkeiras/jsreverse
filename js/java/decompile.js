@@ -52,7 +52,6 @@ function decompileJavaClass(file){
     var thisClass = constantPool[thisClassIndex - 1];
     var superClass = constantPool[superClassIndex - 1];
 
-    console.log(thisClass.name, superClass.name);
-    //~ console.log(flags);
+    var interfaces = readInterfaces(file, constantPool);
 }
 
