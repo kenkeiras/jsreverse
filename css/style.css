@@ -1,0 +1,31 @@
+html body {
+    background: whiteSmoke;
+    text-align: center;
+}
+
+.frame {
+    min-width: 100px;
+    min-height: 100px;
+
+    display: block;
+
+    padding: 10%;
+
+    background: #DDD;
+    border: 1px dashed #AAA;
+    border-radius: 1px;
+}
+
+.frameContainer {
+    position: relative;
+    margin: 0px auto;
+    width: 65%;
+}
+
+.errorMessage {
+    color: red;
+}
+
+.dropMessage {
+    font-family: sans;
+}
