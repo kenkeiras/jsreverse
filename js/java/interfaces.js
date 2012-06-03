@@ -1,5 +1,5 @@
 /**
- * @file constant_pool.js
+ * @file interfaces.js
  * @brief Manages java .class interface reading.
  * 
  */
@@ -20,7 +20,6 @@ function readInterface(file, constantPool){
 
     var name = constantPool[nameIndex - 1]['bytes'];
 
-    console.log(name);
     return { 
         type: "interface",
         name: name,

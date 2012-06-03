@@ -41,8 +41,6 @@ function decompileJavaClass(file){
     var version_minor = file.readShort();
     var version_major = file.readShort();
     
-    //~ console.log(version_major, version_minor);
-
     var constantPool = readConstantPool(file);
     var flags = classFlagsToDict(file.readShort());
     
@@ -53,5 +51,9 @@ function decompileJavaClass(file){
     var superClass = constantPool[superClassIndex - 1];
 
     var interfaces = readInterfaces(file, constantPool);
+    
+    var fields = readFields(file, constantPool);
+    
+    console.log(fields);
 }
 
