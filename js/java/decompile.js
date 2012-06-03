@@ -55,7 +55,7 @@ function decompileJavaClass(file){
     var fields = readFields(file, constantPool);
 
     var methods = readMethods(file, constantPool);
+    var attributes = readAttributes(file, constantPool);
 
-    console.log(methods);
 }
 
