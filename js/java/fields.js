@@ -66,14 +66,15 @@ function readField(file, constantPool){
  * @return The field list.
  */
 function readFields(file, constantPool){
+
     var fields = [];
     var fieldNumber = file.readShort();
     
     // Interface reading
-    for (var i = 0; i < (fieldNumber - 1); i++){
+    for (var i = 0; i < fieldNumber; i++){
         fields.push(readField(file, constantPool));
     }
-    
+
     return fields;
 }
 
