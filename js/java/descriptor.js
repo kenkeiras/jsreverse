@@ -16,7 +16,6 @@ var builtInTypes = {
     "S": "short",
     "Z": "boolean",
     "V": "void",
-    "[": "[]",
 };
 
 /**
@@ -33,5 +32,11 @@ function descriptor2Type(desc){
         return desc.substring(1, desc.length - 1);
     }
     
+    // Dimension
+    else if (desc.startsWith("[")){
+        return descriptor2Type(desc.substring(1, desc.length)) + "[]";
+    }
+    
+    // Built-in
     return builtInTypes[desc.valueOf(0)];
 }
