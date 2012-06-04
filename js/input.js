@@ -15,6 +15,10 @@ function handleFileSelect(evt) {
     evt.stopPropagation();
     evt.preventDefault();
 
+    //~ $('#fileDropZone').transition({ y: '200px'}).
+                       //~ transition({ x: '200px'}).
+                       //~ transition({ y: '100px'}));
+
     // Read the file list
     var files = evt.dataTransfer.files;
 
@@ -27,6 +31,12 @@ function handleFileSelect(evt) {
         reader.onload = function(evt) {
             var deco = decompile(evt.target.result);
             if (deco !== false){
+
+                // Hide the drop zone and show the editor
+                $('#fileDropZone').transition({opacity: 0});
+                $('.editor').transition({opacity: 1});
+                
+                
                 handleNewSource(deco);
             }
         };
@@ -49,6 +59,7 @@ function handleDragOver(evt) {
     evt.preventDefault();
 
     evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    //~ $('#fileDropZone').css({'background-color': 'rgba(50, 50, 50, .25'});
 }
 
 

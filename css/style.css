@@ -1,5 +1,5 @@
 html body {
-    background: whiteSmoke;
+    background-image: url('../img/bg.png');
     text-align: center;
 }
 
@@ -11,9 +11,9 @@ html body {
 
     padding: 10%;
 
-    background: #DDD;
+    background-color: rgba(50, 50, 50, .1);
     border: 1px dashed #AAA;
-    border-radius: 1px;
+    border-radius: 3px;
 }
 
 .frameContainer {
