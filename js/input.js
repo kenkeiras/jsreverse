@@ -28,18 +28,31 @@ function handleFileSelect(evt) {
         var reader = new FileReader();
         
         // When a file is read, decompile it and add to the interface.
-        reader.onload = function(evt) {
-            var deco = decompile(evt.target.result);
-            if (deco !== false){
+        reader.onload = function(fname){
+            return function(evt) {
+                var deco = decompile(evt.target.result);
+                if (deco !== false){
 
-                // Hide the drop zone and show the editor
-                $('#fileDropZone').transition({opacity: 0});
-                $('.editor').transition({opacity: 1});
-                
-                
-                handleNewSource(deco);
+                    // Hide the drop zone and show the editor
+                    $('#initial').transition({opacity: 0}).
+                                        css({display: "none"});
+
+                    $('#fileDropZone').transition({opacity: 0}).
+                                        css({display: "none"});
+
+                    $('#editor').css({display: "block"}).
+                                 transition({opacity: 1});
+                    
+                    
+                    handleNewSource(deco);
+                }
+                else{                
+                    var errorZone = document.getElementById('errorMessage');
+                    errorZone.innerHTML = 
+                         'Sorry, "<em>' + fname + '</em>" couldn\'t be disassembled.';
+                }
             }
-        };
+        }(f.name);
         
         reader.readAsBinaryString(f);
     }
@@ -59,7 +72,6 @@ function handleDragOver(evt) {
     evt.preventDefault();
 
     evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-    //~ $('#fileDropZone').css({'background-color': 'rgba(50, 50, 50, .25'});
 }
 
 

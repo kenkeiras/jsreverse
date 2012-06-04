@@ -29,11 +29,23 @@
   </head>
   <body onload="return initialize()">
     <div id="presentation">
-        &lt;---- Image ------&gt;
-        <br /><br /><br /><br /><br />
-        &lt;---- Slideshow ------&gt;
-        <br /><br />
+        <div id="initial">
+            &lt;---- Image ------&gt;
+            <br /><br /><br /><br /><br />
+            &lt;---- Slideshow ------&gt;
+            <br /><br />
+        </div>
+        <div id="editor">
+            <table>
+                <tr><td>
+                    <ul id="editorTree"></ul>
 
+
+                </td><td id="editorText">
+                </td></tr>
+
+            </table>
+        </div>
         <div class="frameContainer">
             <div class="frame" id="fileDropZone">
                 <div class="dropMessage">Drop here the file(s) you want to reverse.</div>

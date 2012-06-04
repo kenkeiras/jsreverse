@@ -1,0 +1,23 @@
+cf = class flag
+cn = class name
+scn = super class name
+
+ff = field flags
+ft = field type
+fn = field name
+
+mt = method type
+mn = method name
+
+val = value
+
+pt = param type
+
+cp = close parens
+op = open parens
+ae = assignation equal
+obk = open braces keyword
+obk = open braces keyword
+cbk = close braces keyword
+ck = class keyword
+ek = extends keyword

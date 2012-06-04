@@ -52,8 +52,6 @@ function readMethod(file, constantPool){
     var type = tmp[0];
     var params = tmp[1];
 
-    console.log(name);
-
     return { 
         type:  "method",
         flags: flags,

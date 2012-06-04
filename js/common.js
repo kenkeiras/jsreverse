@@ -4,13 +4,92 @@
  * 
  */
 
-/* General functions */
 /* Add a string.startsWith prototype */
 String.prototype.startsWith = function(str){
     return (this.match("^" + str) == str);
 };
 
 
+/* <DOM building> */
+/**
+ * Description: Creates a specific node type with a specific class and a initial
+ *  children list.
+ * 
+ * @param nType The node type.
+ * @param nClass The node class.
+ * @param children The initial children.
+ * 
+ * @return A HTMLElement.
+ * 
+ */
+function aNode(nType, nClass, children){
+    var node = document.createElement(nType);
+    
+    if ((nClass !== undefined) && (nClass !== '')){
+        node.setAttribute("class", nClass);
+    }
+    
+    var child;
+    for(var i = 0; child = children[i]; i++){
+        node.appendChild(child);
+    }
+    
+    return node;
+}
+
+
+/**
+ * Description: Creates a text node.
+ * 
+ * @param text The initial text.
+ * 
+ * @return A HTMLElement.
+ * 
+ */
+function txtNode(text){
+    return document.createTextNode(text);
+}
+
+
+/**
+ * Description: Appends a children list to a parent element.
+ * 
+ * @param parent The parent node.
+ * @param children The children element.
+ * 
+ */
+function addNodeList(parent, children){
+    var child;
+    for(var i = 0; child = children[i]; i++){
+        parent.appendChild(child);
+    }    
+}
+
+
+/**
+ * Description: Creates a space element.
+ * 
+ * @return A text HTMLElement containing a single space.
+ * 
+ */
+function spNode(){
+    return txtNode(" ");
+}
+
+
+/**
+ * Description: Creates a line break element.
+ * 
+ * @return A line break HTMLElement.
+ * 
+ */
+function brNode(){
+    return document.createElement("br");
+}
+
+
+/* </DOM> */
+/* <File like wrapper> */
 /**
  * Description: Provides a File-like wrapper to manage the data.
  * 
@@ -182,3 +261,5 @@ FileLikeWrapper.prototype.readString = function(len){
     
     return str;
 } 
+
+/* </File like wrapper> */

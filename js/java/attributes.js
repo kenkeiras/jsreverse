@@ -15,10 +15,25 @@
 function readAttribute(file, constantPool){
     var nameIndex = file.readShort();
     var attributeLength = file.readInteger();
+
+    var infoPos = file.tell();
     var info = file.readString(attributeLength);
 
     var name = constantPool[nameIndex - 1]['bytes'];
+    var endPos = file.tell();
     
+    if (name == "ConstantValue"){
+        file.seek(infoPos);
+        if (attributeLength == 2){
+            info = file.readShort();
+        }
+        else if (attributeLength == 4){
+            info = file.readInteger();
+        }
+
+        file.seek(endPos);
+    }
+        
     return {
         type: 'attribute',
         name: name,

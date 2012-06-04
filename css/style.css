@@ -3,6 +3,38 @@ html body {
     text-align: center;
 }
 
+td {
+    vertical-align: top;
+}
+
+table {
+    width: 100%;
+}
+
+#presentation {
+    width: 100%;
+}
+
+#editor {
+    opacity: 0;
+    width: 100%;
+    display: none;
+    text-align: left;
+}
+
+#editorTree, #editorText {
+    width: 90%;
+    display: block;
+    background-color: rgba(255, 255, 255, .99);
+    padding: 10px ;
+
+    border: 1px dashed #AAA;
+    border-radius: 3px;
+}
+
+#initial {
+}
+
 .frame {
     min-width: 100px;
     min-height: 100px;
@@ -28,4 +60,18 @@ html body {
 
 .dropMessage {
     font-family: sans;
+}
+
+
+a {
+    color: #000;
+}
+
+/* Source code style */
+.cn {
+    font-weight: strong;
+}
+
+.pt {
+    font-size: strong;
 }

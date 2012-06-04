@@ -17,7 +17,7 @@ function decompile(file){
     // Java .class file
     if (file.startsWith("\xCA\xFE\xBA\xBE")){
         console.log("Decompiling java .class file");
-        return [decompileJavaClass(file)];
+        return [new javaClass(file)];
     }
     
     // Unknown file type

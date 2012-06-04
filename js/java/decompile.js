@@ -3,7 +3,29 @@
  * @brief Manages the java .class decompilation.
  * 
  */
- 
+
+
+var indentation = "    "; // Output indentation
+var rootClass = "java.lang.";
+
+/**
+ * Description: Converts the .class file representation of a class name to it's
+ *              source code representation.
+ * 
+ * @param flags The name found in the .class file.
+ * 
+ * @return The class name as it'd be in the source code.
+ * 
+ */
+function asClassName(className){
+    className = className.replace(/\//g, ".");
+    if (className.startsWith(rootClass)){
+        className = className.substring(rootClass.length, className.length);
+    }
+    
+    return escape(className);
+}
+
  
 /**
  * Description: Converts a general binary representation of the access
@@ -34,28 +56,138 @@ function classFlagsToDict(flags){
  * @param file The file data to decompile.
  * 
  */
-function decompileJavaClass(file){
+function javaClass(file){
     file = new FileLikeWrapper(file);
     
     file.seek(4);
-    var version_minor = file.readShort();
-    var version_major = file.readShort();
+    this.version_minor = file.readShort();
+    this.version_major = file.readShort();
     
-    var constantPool = readConstantPool(file);
-    var flags = classFlagsToDict(file.readShort());
+    this.constantPool = readConstantPool(file);
+    this.flags = classFlagsToDict(file.readShort());
     
     var thisClassIndex = file.readShort();
     var superClassIndex = file.readShort();
 
-    var thisClass = constantPool[thisClassIndex - 1];
-    var superClass = constantPool[superClassIndex - 1];
+    this.class = this.constantPool[thisClassIndex - 1];
+    this.superClass = this.constantPool[superClassIndex - 1];
+    this.name = this.class.name;
 
-    var interfaces = readInterfaces(file, constantPool);
-    
-    var fields = readFields(file, constantPool);
+    this.interfaces = readInterfaces(file, this.constantPool);
+    this.fields = readFields(file, this.constantPool);
 
-    var methods = readMethods(file, constantPool);
-    var attributes = readAttributes(file, constantPool);
+    this.methods = readMethods(file, this.constantPool);
+    this.attributes = readAttributes(file, this.constantPool);
 
 }
 
+
+/**
+ * Description: Returns the source code of the java class.
+ * 
+ * @return The source code.
+ * 
+ */
+javaClass.prototype.getSource = function() {
+    var src = aNode("pre", "code", []);
+
+    var i;
+    var flag;
+    var possibleClassFlags = ["public", "final", "interface", "abstract", 
+                              "synthetic", "annotation", "enum"];
+
+    var possibleFieldFlags = ["public", "private", "protected", "static",
+                              "final", "volatile", "transient", "synthetic", "enum"];
+
+    // Class flags
+    for (i = 0; flag = possibleClassFlags[i]; i++){
+
+        if (this.flags[flag]){
+            addNodeList(src, [aNode("span", "cf", [txtNode(flag)]), spNode()]);
+        }
+    }
+
+    // class name and superclass
+    addNodeList(src, [aNode("span", "ck", [txtNode("class")]), 
+                        spNode(),
+                        aNode("span", "cn", [txtNode(asClassName(this.class.name))]),
+                        spNode()]);
+                      
+    if (this.superClass.name != 'java/lang/Object'){
+        addSpcdNodeList(src, [aNode("span", "ek", [txtNode("extends")]),
+                          aNode("span", "scn", [txtNode(asClassName(this.superClass.name))])]);
+    }
+
+    addNodeList(src, [aNode("span", "bk", [txtNode("{")]),
+                      brNode()]);
+    
+    // Field list
+    var field;
+    var method;
+    for (i = 0; field = this.fields[i]; i++){
+        addNodeList(src, [txtNode(indentation)]);
+        for (j = 0; flag = possibleFieldFlags[j]; j++){
+            if (field.flags[flag]){
+                addNodeList(src, [aNode("span", "ff", [txtNode(escape(flag))]),
+                                  spNode()]);
+            }
+        }
+        
+        addNodeList(src, [aNode("span", "ft", [txtNode(asClassName(field.type))]),
+                            spNode(),
+                            aNode("span", "fn", [txtNode(escape(field.name))])]);
+        
+        var ind = Number(field.attributes["ConstantValue"]);
+        if (! isNaN(ind)){
+            var val = "" + this.constantPool[ind - 1]['bytes'];
+            if (val.indexOf(".") !== -1){
+                val += "f";
+            }
+               addNodeList(src, [spNode(),
+                                    aNode("span", "ae", [txtNode("=")]),
+                                    spNode(),
+                                    aNode("span", "val", [txtNode(escape(val))])]);
+        }
+
+        addNodeList(src, [txtNode(";"), brNode()]);
+    }
+    addNodeList(src, [brNode()]);
+ 
+    // Method list
+    var method;
+    for (i = 0; method = this.methods[i]; i++){
+        if (method.name[0] == "<"){
+            continue;
+        }
+
+        var anchor = aNode("a", "mn", [txtNode(asClassName(method.name))]);
+        anchor.setAttribute("name", "__" + asClassName(this.name) + "__" +
+                            escape(method.name) + "__");
+        
+        addNodeList(src, [txtNode(indentation),
+                            aNode("span", "mt", [txtNode(asClassName(method.type))]),
+                            txtNode(" "), anchor,
+                            aNode("span", "op", [txtNode("(")])]);
+        
+        // Method parameters
+        for (var j = 0; param = method.params[j]; j++){
+            if (j > 0){
+                addNodeList(src, [txtNode(", ")]);
+            }
+
+            addNodeList(src, [aNode("span", "pt", [txtNode(asClassName(param))])]);
+        }
+        
+        addNodeList(src, [aNode("span", "cp", [txtNode(")")]),
+                            aNode("span", "obk", [txtNode("{")]),
+                            brNode(), brNode()]);
+        
+        addNodeList(src, [txtNode(indentation), 
+                            aNode("span", "cbk", [txtNode("}")]),
+                            brNode(), brNode()]);
+    }
+    
+    addNodeList(src, [aNode("span", "cbk", [txtNode("}")])]);
+    
+    return src;
+}
