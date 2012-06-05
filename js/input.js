@@ -88,7 +88,7 @@ function initialize(){
     }
 
     // Setup the Drag and Drop listeners.
-    var dropZone = document.getElementById('fileDropZone');
+    var dropZone = document.getElementById('presentation');
     dropZone.addEventListener('dragover', handleDragOver, false);
     dropZone.addEventListener('drop', handleFileSelect, false);
     
