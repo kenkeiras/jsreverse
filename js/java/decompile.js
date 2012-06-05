@@ -89,7 +89,7 @@ function javaClass(file){
  * 
  */
 javaClass.prototype.getSource = function() {
-    var src = aNode("pre", "code", []);
+    var src = aNode("div", "code", []);
 
     var i;
     var flag;
@@ -118,7 +118,7 @@ javaClass.prototype.getSource = function() {
                           aNode("span", "scn", [txtNode(asClassName(this.superClass.name))])]);
     }
 
-    addNodeList(src, [aNode("span", "bk", [txtNode("{")]),
+    addNodeList(src, [aNode("span", "obk", [txtNode("{")]),
                       brNode()]);
     
     // Field list
@@ -162,7 +162,7 @@ javaClass.prototype.getSource = function() {
 
         var anchor = aNode("a", "mn", [txtNode(asClassName(method.name))]);
         anchor.setAttribute("name", "__" + asClassName(this.name) + "__" +
-                            escape(method.name) + "__");
+                            escape(method.name));
         
         addNodeList(src, [txtNode(indentation),
                             aNode("span", "mt", [txtNode(asClassName(method.type))]),

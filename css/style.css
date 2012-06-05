@@ -68,10 +68,31 @@ a {
 }
 
 /* Source code style */
-.cn {
-    font-weight: strong;
+.code {
+    font-family: monospace;
+    white-space: pre;
+}
+.cn, .fn {
+    font-weight: bold;
+    color: #7F0000;
 }
 
-.pt {
-    font-size: strong;
+.val {
+    font-style: italic;
 }
+
+.cf, .ff {
+    color: #007F00;
+}
+
+.ck, .ek {
+}
+
+.mt, .ft, .pt {
+    color: #00007F;
+}
+
+.cp, .op, .obk, .cbk, .ae {
+    font-weight: bold;
+}
+

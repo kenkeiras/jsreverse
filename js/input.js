@@ -42,8 +42,7 @@ function handleFileSelect(evt) {
 
                     $('#editor').css({display: "block"}).
                                  transition({opacity: 1});
-                    
-                    
+
                     handleNewSource(deco);
                 }
                 else{                
