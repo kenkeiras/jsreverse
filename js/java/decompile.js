@@ -1,7 +1,7 @@
 /**
  * @file decompile.js
  * @brief Manages the java .class decompilation.
- * 
+ *
  */
 
 
@@ -11,30 +11,30 @@ var rootClass = "java.lang.";
 /**
  * Description: Converts the .class file representation of a class name to it's
  *              source code representation.
- * 
+ *
  * @param flags The name found in the .class file.
- * 
+ *
  * @return The class name as it'd be in the source code.
- * 
+ *
  */
 function asClassName(className){
     className = className.replace(/\//g, ".");
     if (className.startsWith(rootClass)){
         className = className.substring(rootClass.length, className.length);
     }
-    
-    return escape(className);
+
+    return className;
 }
 
- 
+
 /**
  * Description: Converts a general binary representation of the access
  *   flags to a dictionary.
- * 
+ *
  * @param flags The flags to be decoded.
- * 
+ *
  * @return The decoded flags.
- * 
+ *
  */
 function classFlagsToDict(flags){
     return {
@@ -52,20 +52,20 @@ function classFlagsToDict(flags){
 
 /**
  * Description: Decompile a java .class file.
- * 
+ *
  * @param file The file data to decompile.
- * 
+ *
  */
 function javaClass(file){
     file = new FileLikeWrapper(file);
-    
+
     file.seek(4);
     this.version_minor = file.readShort();
     this.version_major = file.readShort();
-    
+
     this.constantPool = readConstantPool(file);
     this.flags = classFlagsToDict(file.readShort());
-    
+
     var thisClassIndex = file.readShort();
     var superClassIndex = file.readShort();
 
@@ -84,20 +84,20 @@ function javaClass(file){
 
 /**
  * Description: Returns the source code of the java class.
- * 
+ *
  * @return The source code.
- * 
+ *
  */
-javaClass.prototype.getSource = function() {
+javaClass.prototype.getSource = function(prefer_bytecode) {
     var src = aNode("div", "code", []);
 
     var i;
     var flag;
-    var possibleClassFlags = ["public", "final", "interface", "abstract", 
+    var possibleClassFlags = ["public", "final", "interface", "abstract",
                               "synthetic", "annotation", "enum"];
 
-    var possibleFieldFlags = ["public", "private", "protected", "static",
-                              "final", "volatile", "transient", "synthetic", "enum"];
+    var possibleFieldFlags = ["public", "private", "protected", "final", "static",
+                              "volatile", "transient", "synthetic", "enum"];
 
     // Class flags
     for (i = 0; flag = possibleClassFlags[i]; i++){
@@ -108,19 +108,19 @@ javaClass.prototype.getSource = function() {
     }
 
     // class name and superclass
-    addNodeList(src, [aNode("span", "ck", [txtNode("class")]), 
-                        spNode(),
-                        aNode("span", "cn", [txtNode(asClassName(this.class.name))]),
-                        spNode()]);
-                      
+    addNodeList(src, [aNode("span", "ck", [txtNode("class")]),
+                      spNode(),
+                      aNode("span", "cn", [txtNode(asClassName(this.class.name))]),
+                      spNode()]);
+
     if (this.superClass.name != 'java/lang/Object'){
-        addSpcdNodeList(src, [aNode("span", "ek", [txtNode("extends")]),
-                          aNode("span", "scn", [txtNode(asClassName(this.superClass.name))])]);
+        addNodeList(src, [aNode("span", "ek", [txtNode("extends")]), spNode(),
+                              aNode("span", "scn", [txtNode(asClassName(this.superClass.name))])]);
     }
 
     addNodeList(src, [aNode("span", "obk", [txtNode("{")]),
                       brNode()]);
-    
+
     // Field list
     var field;
     var method;
@@ -132,43 +132,41 @@ javaClass.prototype.getSource = function() {
                                   spNode()]);
             }
         }
-        
+
         addNodeList(src, [aNode("span", "ft", [txtNode(asClassName(field.type))]),
-                            spNode(),
-                            aNode("span", "fn", [txtNode(escape(field.name))])]);
-        
+                          spNode(),
+                          aNode("span", "fn", [txtNode(escape(field.name))])]);
+
         var ind = Number(field.attributes["ConstantValue"]);
         if (! isNaN(ind)){
             var val = "" + this.constantPool[ind - 1]['bytes'];
             if (val.indexOf(".") !== -1){
                 val += "f";
             }
-               addNodeList(src, [spNode(),
-                                    aNode("span", "ae", [txtNode("=")]),
-                                    spNode(),
-                                    aNode("span", "val", [txtNode(escape(val))])]);
+            addNodeList(src, [spNode(),
+                              aNode("span", "ae", [txtNode("=")]),
+                              spNode(),
+                              aNode("span", "val", [txtNode(escape(val))])]);
         }
 
         addNodeList(src, [txtNode(";"), brNode()]);
     }
     addNodeList(src, [brNode()]);
- 
+
     // Method list
     var method;
     for (i = 0; method = this.methods[i]; i++){
-        if (method.name[0] == "<"){
-            continue;
-        }
 
+        console.log(method.name);
         var anchor = aNode("a", "mn", [txtNode(asClassName(method.name))]);
         anchor.setAttribute("name", "__" + asClassName(this.name) + "__" +
                             escape(method.name));
-        
+
         addNodeList(src, [txtNode(indentation),
-                            aNode("span", "mt", [txtNode(asClassName(method.type))]),
-                            txtNode(" "), anchor,
-                            aNode("span", "op", [txtNode("(")])]);
-        
+                          aNode("span", "mt", [txtNode(asClassName(method.type))]),
+                          txtNode(" "), anchor,
+                          aNode("span", "op", [txtNode("(")])]);
+
         // Method parameters
         for (var j = 0; param = method.params[j]; j++){
             if (j > 0){
@@ -177,17 +175,24 @@ javaClass.prototype.getSource = function() {
 
             addNodeList(src, [aNode("span", "pt", [txtNode(asClassName(param))])]);
         }
-        
+
         addNodeList(src, [aNode("span", "cp", [txtNode(")")]),
-                            aNode("span", "obk", [txtNode("{")]),
-                            brNode(), brNode()]);
-        
-        addNodeList(src, [txtNode(indentation), 
-                            aNode("span", "cbk", [txtNode("}")]),
-                            brNode(), brNode()]);
+                          aNode("span", "obk", [txtNode("{")]),
+                          brNode()]);
+
+        if (prefer_bytecode) {
+            disassemble_java_bytecode(method, src, this.constantPool);
+        }
+        else {
+            addNodeList(src, [txtNode("aún no decompila ;)")]);
+        }
+
+        addNodeList(src, [txtNode(indentation),
+                          aNode("span", "cbk", [txtNode("}")]),
+                          brNode(), brNode()]);
     }
-    
+
     addNodeList(src, [aNode("span", "cbk", [txtNode("}")])]);
-    
+
     return src;
 }

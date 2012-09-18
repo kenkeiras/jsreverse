@@ -3,6 +3,8 @@
  * @brief Manages the code-exploring interface.
  * 
  */
+ 
+var currentFile;
 
 /**
  * Description: Handles the class adition to the interface.
@@ -35,10 +37,27 @@ function handleNewSource(classList){
         
         
         if (editor.innerHTML.replace(/\s*/, "").length == 0){
-            editor.appendChild(cls.getSource());
+            var prefer_bytecode = document.getElementById("prefer_bytecode").checked;
+            currentFile = cls;
+            editor.appendChild(cls.getSource(prefer_bytecode));
         }
         
         ctree.appendChild(mtree);
         tree.appendChild(ctree);
     }
+}
+
+
+/**
+ * Description: Updates the displayed code.
+ * 
+ */
+function refreshCode(){
+    var prefer_bytecode = document.getElementById("prefer_bytecode").checked;
+    var editor = document.getElementById("editorText");
+    while( editor.hasChildNodes() ){
+        editor.removeChild(editor.lastChild);
+    }
+    var cls = currentFile;
+    editor.appendChild(cls.getSource(prefer_bytecode));
 }

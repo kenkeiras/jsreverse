@@ -21,7 +21,9 @@
     <script type="text/javascript" src="js/java/constant_pool.js"></script>
     <script type="text/javascript" src="js/java/interfaces.js"></script>
     <script type="text/javascript" src="js/java/decompile.js"></script>
-    
+    <script type="text/javascript" src="js/java/bytecode.js"></script>
+    <script type="text/javascript" src="js/java/disassemble.js"></script>
+
     <!-- General -->
     <script type="text/javascript" src="js/input.js"></script>
     <script type="text/javascript" src="js/reverse.js"></script>
@@ -39,7 +41,8 @@
             <table>
                 <tr><td>
                     <ul id="editorTree"></ul>
-
+                    <label for="prefer_bytecode">Prefer bytecode</label>
+                    <input type="checkbox" id="prefer_bytecode" onchange="return refreshCode();" name="prefer_bytecode" checked="checked" />
 
                 </td><td id="editorText">
                 </td></tr>
