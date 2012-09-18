@@ -157,7 +157,6 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
     var method;
     for (i = 0; method = this.methods[i]; i++){
 
-        console.log(method.name);
         var anchor = aNode("a", "mn", [txtNode(asClassName(method.name))]);
         anchor.setAttribute("name", "__" + asClassName(this.name) + "__" +
                             escape(method.name));
