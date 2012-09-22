@@ -205,20 +205,19 @@ FileLikeWrapper.prototype.readLong = function(){
 
 
 /**
- * Description IEEE754 wrapper.
+ * Description: IEEE754 single-precission wrapper.
  *
  * @param sign
  * @param exponent
  * @param significant
- * @param exponent_modifier
  *
  * @return The represented number.
  */
-function ieee754(sign, exponent, significant, exponent_modifier, significant_bits){
+function ieee754_32bit(sign, exponent, significant){
     var value;
     // Special exponent considerations
     if (exponent == 0xFF){ // (+-)Infinity or NaN
-        if (significand == 0){
+        if (significant == 0){
             if (sign){
                 return -Infinity;
             }
@@ -231,7 +230,7 @@ function ieee754(sign, exponent, significant, exponent_modifier, significant_bit
         }
     }
     else if (exponent == 0){ // 0 or denormal numbers
-        if (significand == 0){
+        if (significant == 0){
             if (sign){
                 return -0;
             }
@@ -240,18 +239,18 @@ function ieee754(sign, exponent, significant, exponent_modifier, significant_bit
             }
         }
         else{
-            exponent = -exponent_modifier;
+            exponent = -127;
             value = 0;
         }
     }
     else{ // Normal numbers
-        exponent -= exponent_modifier;
+        exponent -= 127;
         value = 1;
     }
 
     // Value calculation
-    for (var i = 0; i < significant_bits; i++){
-        value += ((significant >> i) & 1) * Math.pow(2, -(significant_bits - i));
+    for (var i = 0; i < 23; i++){
+        value += ((significant >> i) & 1) * Math.pow(2, -(23 - i));
     }
 
     var result = value * Math.pow(2, exponent);
@@ -281,7 +280,83 @@ FileLikeWrapper.prototype.readFloat = function(){
     var sign = (c1 & 0x80) >> 7;
     var exponent = (((c1 & 0x7F) << 1) | ((c2 & 0x80) >> 7));
     var significant = ((c2 & 0x7F) << 16) | (c3 << 8) | c4;
-    return ieee754(sign, exponent, significant, 127, 23);
+
+    return ieee754_32bit(sign, exponent, significant);
+}
+
+
+function __bb(x, bits){
+    if (bits === undefined){
+        bits = 8;
+    }
+
+    var a = [];
+    while (x > 0){
+        a.push(x & 1);
+        x >>= 1;
+    }
+
+    while (a.length < bits){
+        a.push(0);
+    }
+
+    return a.reverse();
+}
+
+
+/**
+ * Description: IEEE754 double-precission wrapper.
+ *
+ * @param sign
+ * @param exponent
+ * @param significant
+ *
+ * @return The represented number.
+ */
+function ieee754_64bit(sign, exponent, significant){
+    var value;
+    // Special exponent considerations
+    if (exponent == 0xFF){ // (+-)Infinity or NaN
+        if (significant == 0){
+            if (sign){
+                return -Infinity;
+            }
+            else{
+                return +Infinity;
+            }
+        }
+        else{
+            return NaN;
+        }
+    }
+    else if (exponent == 0){ // 0 or denormal numbers
+        if (significant == 0){
+            if (sign){
+                return -0;
+            }
+            else{
+                return +0;
+            }
+        }
+        else{
+            exponent = -1023;
+            value = 0;
+        }
+    }
+    else{ // Normal numbers
+        exponent -= 1023;
+        value = 1;
+    }
+
+    // Value calculation
+    for (var i = 0; i < 52; i++){
+        value += ((significant[i]) & 1) * Math.pow(2, -1 -i);
+    }
+    console.log(value);
+
+    var result = value * Math.pow(2, exponent);
+
+    return Math.pow(-1, sign) * result;
 }
 
 
@@ -306,13 +381,17 @@ FileLikeWrapper.prototype.readDouble = function(){
 
     this.pos += 8;
 
-
     var sign = (c1 & 0x80) >> 7;
     var exponent = (((c1 & 0x7F) << 4) | ((c2 & 0xF0) >> 4));
-    var significant = ((c2 & 0x0F) << 48) | (c3 << 40) | (c4 << 32)
-        | (c5 << 24) | (c6 << 16) | (c7 << 8) | c8;
+    var significant = __bb(c2 & 0x0F, 4).concat(__bb(c3), __bb(c4), __bb(c5),
+                                                __bb(c6), __bb(c7), __bb(c8));
 
-    return ieee754(sign, exponent, significant, 1023, 52);
+    console.log(significant.length);
+    for(var i = 0; i < 8; i++){
+        console.log(significant[51 - i]);
+    }
+
+    return ieee754_64bit(sign, exponent, significant);
 }
 
 
