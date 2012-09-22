@@ -78,6 +78,7 @@ function readMethods(file, constantPool){
     // Interface reading
     for (var i = 0; i < methodNumber; i++){
         methods.push(readMethod(file, constantPool));
+        disassemble_java_bytecode(methods[methods.length - 1], constantPool);
     }
 
     return methods;

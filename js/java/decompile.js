@@ -79,6 +79,50 @@ function javaClass(file){
     this.methods = readMethods(file, this.constantPool);
     this.attributes = readAttributes(file, this.constantPool);
 
+    this.guessFields();
+}
+
+
+/**
+ * Description: Tries to guess the fields default values from the <init> method.
+ *
+ */
+javaClass.prototype.guessFields = function() {
+    var initMethod, method;
+    for (var i = 0; (method = this.methods[i]) !== undefined; i++){
+        if (method.name === '<init>'){
+            initMethod = method;
+        }
+    }
+
+    if (initMethod === undefined){
+        return;
+    }
+
+    for (i = 0; field = this.fields[i]; i++){
+        if ((field.type === undefined) || (field.name === undefined)){
+            continue;
+        }
+
+        if (field.attributes["ConstantValue"] === undefined){
+            /* Only try to guess if it's not explicit. */
+            var opcode;
+            var loaded_value;
+            for (var i = 0; (opcode = initMethod.opcodes[i]); i++){
+                if (opcode.mnemonic.startsWith('ldc')){
+                    loaded_value = opcode.params[0].value.substring(1);
+                }
+
+                else if(opcode.mnemonic === 'putfield'){
+                    var referred_field_number = this.constantPool[Number(opcode.params[0].value.substring(1)) - 1].nameAndTypeIndex;
+                    var referred_field = this.constantPool[referred_field_number - 1];
+                    if ((referred_field.name == field.name) && (loaded_value !== undefined)){
+                        field.guessedValue = '' + this.constantPool[loaded_value - 1].bytes;
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -142,8 +186,14 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                           aNode("span", "fn", [txtNode(escape(field.name))])]);
 
         var ind = Number(field.attributes["ConstantValue"]);
-        if (! isNaN(ind)){
-            var val = "" + this.constantPool[ind - 1]['bytes'];
+        var val = undefined;
+        if (isNaN(ind)){
+            val = field.guessedValue;
+        }
+        else {
+            val = "" + this.constantPool[ind - 1]['bytes'];
+        }
+        if (val !== undefined){
             if (val.indexOf(".") !== -1){
                 val += "f";
             }
@@ -184,7 +234,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                           brNode()]);
 
         if (prefer_bytecode) {
-            disassemble_java_bytecode(method, src, this.constantPool);
+            show_disassembled_java_bytecode(method, src, this.constantPool);
         }
         else {
             addNodeList(src, [txtNode("aún no decompila ;)")]);
