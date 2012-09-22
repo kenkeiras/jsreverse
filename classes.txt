@@ -8,6 +8,7 @@ fn = field name
 
 mt = method type
 mn = method name
+mf = mehtod flags
 
 val = value
 
@@ -21,3 +22,6 @@ obk = open braces keyword
 cbk = close braces keyword
 ck = class keyword
 ek = extends keyword
+
+comment_start = comment start token
+comment = comment string

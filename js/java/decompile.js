@@ -143,6 +143,11 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
     var possibleFieldFlags = ["public", "private", "protected", "final", "static",
                               "volatile", "transient", "synthetic", "enum"];
 
+    var possibleMethodFlags = ["public", "private", "protected", "static", "final",
+                               "synchronized", "bridge", /*"varargs", "native",*/
+                               "abstract", "strict", /*synthetic, */];
+
+
     // Class flags
     for (i = 0; flag = possibleClassFlags[i]; i++){
 
@@ -215,8 +220,16 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
         anchor.setAttribute("name", "__" + asClassName(this.name) + "__" +
                             escape(method.name));
 
-        addNodeList(src, [txtNode(indentation),
-                          aNode("span", "mt", [txtNode(asClassName(method.type))]),
+        addNodeList(src, [txtNode(indentation)]);
+        for (j = 0; flag = possibleMethodFlags[j]; j++){
+            if (method.flags[flag]){
+                addNodeList(src, [aNode("span", "mf", [txtNode(escape(flag))]),
+                                  spNode()]);
+            }
+        }
+
+
+        addNodeList(src, [aNode("span", "mt", [txtNode(asClassName(method.type))]),
                           txtNode(" "), anchor,
                           aNode("span", "op", [txtNode("(")])]);
 
