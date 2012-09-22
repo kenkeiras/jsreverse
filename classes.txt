@@ -11,7 +11,7 @@ mn = method name
 mf = mehtod flags
 
 val = value
-
+opcode = opcode mnemonic
 pt = param type
 
 cp = close parens
