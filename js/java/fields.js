@@ -1,18 +1,18 @@
 /**
  * @file fields.js
  * @brief Manages java .class field reading.
- * 
+ *
  */
- 
+
 /**
  * Description: Converts a general binary representation of the field access
  *   flags to a dictionary.
- * 
+ *
  * @param flags The flags to be decoded.
- * 
+ *
  * @return The decoded flags.
- * 
- */ 
+ *
+ */
 function fieldFlags2Dict(flags){
     return {
         public:     (flags & 0x0001) == 0x0001,
@@ -31,10 +31,10 @@ function fieldFlags2Dict(flags){
 
 /**
  * Description: Reads a single field from a java .class file.
- * 
+ *
  * @param file The file to read from.
  * @param constantPool The constant pool from the .class file.
- * 
+ *
  * @return The next field in the file.
  */
 function readField(file, constantPool){
@@ -43,11 +43,14 @@ function readField(file, constantPool){
     var descriptorIndex = file.readShort();
 
     var attributes = readAttributes(file, constantPool);
-    var name = constantPool[nameIndex - 1]['bytes'];
     var flags = fieldFlags2Dict(accessFlags);
-    var type = descriptor2Type(constantPool[descriptorIndex - 1]['bytes']);
+    var name, type;
+    if (constantPool[descriptorIndex - 1] !== undefined){
+        name = constantPool[nameIndex - 1].bytes;
+        type = descriptor2Type(constantPool[descriptorIndex - 1].bytes);
+    }
 
-    return { 
+    return {
         type:  "field",
         flags: flags,
         name:  name,
@@ -59,17 +62,17 @@ function readField(file, constantPool){
 
 /**
  * Description: Reads the field list from a java .class file.
- * 
+ *
  * @param file The file to read from.
  * @param constantPool The constant pool from the .class file.
- * 
+ *
  * @return The field list.
  */
 function readFields(file, constantPool){
 
     var fields = [];
     var fieldNumber = file.readShort();
-    
+
     // Interface reading
     for (var i = 0; i < fieldNumber; i++){
         fields.push(readField(file, constantPool));
@@ -77,4 +80,3 @@ function readFields(file, constantPool){
 
     return fields;
 }
-

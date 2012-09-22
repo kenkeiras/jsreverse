@@ -167,32 +167,6 @@ FileLikeWrapper.prototype.readShort = function(){
 
 
 /**
- * Description: Read a 8-byte integer at a specified position.
- *
- * @param file The data to read from.
- * @param pos The position to start reading.
- *
- * @return The number read.
- *
- */
-FileLikeWrapper.prototype.readLong = function(){
-    var c1 = this.data.charCodeAt(this.pos),
-        c2 = this.data.charCodeAt(this.pos + 1),
-        c3 = this.data.charCodeAt(this.pos + 2),
-        c4 = this.data.charCodeAt(this.pos + 3),
-        c5 = this.data.charCodeAt(this.pos + 4),
-        c6 = this.data.charCodeAt(this.pos + 5),
-        c7 = this.data.charCodeAt(this.pos + 6),
-        c8 = this.data.charCodeAt(this.pos + 7);
-
-    this.pos += 8;
-
-    return (c1 << 56) | (c2 << 48) | (c3 << 40) | (c4 << 32)
-         | (c5 << 24) | (c6 << 16) | (c7 <<  8) | c8;
-}
-
-
-/**
  * Description: Read a 4-byte integer at a specified position.
  *
  * @param file The data to read from.
@@ -214,7 +188,7 @@ FileLikeWrapper.prototype.readInteger = function(){
 
 
 /**
- * Description: Read a 4-byte IEEE754 float number at a specified position.
+ * Description: Read a 8-byte integer at a specified position.
  *
  * @param file The data to read from.
  * @param pos The position to start reading.
@@ -222,19 +196,25 @@ FileLikeWrapper.prototype.readInteger = function(){
  * @return The number read.
  *
  */
-FileLikeWrapper.prototype.readFloat = function(){
-    // Data read
-    var c1 = this.data.charCodeAt(this.pos),
-        c2 = this.data.charCodeAt(this.pos + 1),
-        c3 = this.data.charCodeAt(this.pos + 2),
-        c4 = this.data.charCodeAt(this.pos + 3);
+FileLikeWrapper.prototype.readLong = function(){
+    var high_bytes = this.readInteger();
+    var low_bytes = this.readInteger();
 
-    this.pos += 4;
+    return (high_bytes << 32) | low_bytes;
+}
 
-    var sign = (c1 & 0x80) >> 7;
-    var exponent = (((c1 & 0x7F) << 1) | ((c2 & 0x80) >> 7));
-    var significant = ((c2 & 0x7F) << 16) | (c3 << 8) | c4;
 
+/**
+ * Description IEEE754 wrapper.
+ *
+ * @param sign
+ * @param exponent
+ * @param significant
+ * @param exponent_modifier
+ *
+ * @return The represented number.
+ */
+function ieee754(sign, exponent, significant, exponent_modifier, significant_bits){
     var value;
     // Special exponent considerations
     if (exponent == 0xFF){ // (+-)Infinity or NaN
@@ -260,23 +240,79 @@ FileLikeWrapper.prototype.readFloat = function(){
             }
         }
         else{
-            exponent = -127;
+            exponent = -exponent_modifier;
             value = 0;
         }
     }
     else{ // Normal numbers
-        exponent -= 127;
+        exponent -= exponent_modifier;
         value = 1;
     }
 
     // Value calculation
-    for (var i = 0; i < 23; i++){
-        value += ((significant >> i) & 1) * Math.pow(2, -(23 - i));
+    for (var i = 0; i < significant_bits; i++){
+        value += ((significant >> i) & 1) * Math.pow(2, -(significant_bits - i));
     }
 
     var result = value * Math.pow(2, exponent);
 
     return Math.pow(-1, sign) * result;
+}
+
+
+/**
+ * Description: Read a 4-byte IEEE754 float number at a specified position.
+ *
+ * @param file The data to read from.
+ * @param pos The position to start reading.
+ *
+ * @return The number read.
+ *
+ */
+FileLikeWrapper.prototype.readFloat = function(){
+    // Data read
+    var c1 = this.data.charCodeAt(this.pos),
+        c2 = this.data.charCodeAt(this.pos + 1),
+        c3 = this.data.charCodeAt(this.pos + 2),
+        c4 = this.data.charCodeAt(this.pos + 3);
+
+    this.pos += 4;
+
+    var sign = (c1 & 0x80) >> 7;
+    var exponent = (((c1 & 0x7F) << 1) | ((c2 & 0x80) >> 7));
+    var significant = ((c2 & 0x7F) << 16) | (c3 << 8) | c4;
+    return ieee754(sign, exponent, significant, 127, 23);
+}
+
+
+/**
+ * Description: Read a 8-byte IEEE754 double precision float number at a specified position.
+ *
+ * @param file The data to read from.
+ * @param pos The position to start reading.
+ *
+ * @return The number read.
+ *
+ */
+FileLikeWrapper.prototype.readDouble = function(){
+    var c1 = this.data.charCodeAt(this.pos),
+        c2 = this.data.charCodeAt(this.pos + 1),
+        c3 = this.data.charCodeAt(this.pos + 2),
+        c4 = this.data.charCodeAt(this.pos + 3),
+        c5 = this.data.charCodeAt(this.pos + 4),
+        c6 = this.data.charCodeAt(this.pos + 5),
+        c7 = this.data.charCodeAt(this.pos + 6),
+        c8 = this.data.charCodeAt(this.pos + 7);
+
+    this.pos += 8;
+
+
+    var sign = (c1 & 0x80) >> 7;
+    var exponent = (((c1 & 0x7F) << 4) | ((c2 & 0xF0) >> 4));
+    var significant = ((c2 & 0x0F) << 48) | (c3 << 40) | (c4 << 32)
+        | (c5 << 24) | (c6 << 16) | (c7 << 8) | c8;
+
+    return ieee754(sign, exponent, significant, 1023, 52);
 }
 
 

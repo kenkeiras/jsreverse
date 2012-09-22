@@ -110,12 +110,12 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
     // class name and superclass
     addNodeList(src, [aNode("span", "ck", [txtNode("class")]),
                       spNode(),
-                      aNode("span", "cn", [txtNode(asClassName(this.class.name))]),
+                      aNode("span", "cn", [txtNode(asClassName(this.name))]),
                       spNode()]);
 
     if (this.superClass.name != 'java/lang/Object'){
         addNodeList(src, [aNode("span", "ek", [txtNode("extends")]), spNode(),
-                              aNode("span", "scn", [txtNode(asClassName(this.superClass.name))])]);
+                          aNode("span", "scn", [txtNode(asClassName(this.superClass.name))]), spNode()]);
     }
 
     addNodeList(src, [aNode("span", "obk", [txtNode("{")]),
@@ -125,6 +125,10 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
     var field;
     var method;
     for (i = 0; field = this.fields[i]; i++){
+        if ((field.type === undefined) || (field.name === undefined)){
+            continue;
+        }
+
         addNodeList(src, [txtNode(indentation)]);
         for (j = 0; flag = possibleFieldFlags[j]; j++){
             if (field.flags[flag]){
@@ -175,7 +179,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
             addNodeList(src, [aNode("span", "pt", [txtNode(asClassName(param))])]);
         }
 
-        addNodeList(src, [aNode("span", "cp", [txtNode(")")]),
+        addNodeList(src, [aNode("span", "cp", [txtNode(")")]), spNode(),
                           aNode("span", "obk", [txtNode("{")]),
                           brNode()]);
 

@@ -19,7 +19,10 @@ function readAttribute(file, constantPool){
     var infoPos = file.tell();
     var info = file.readString(attributeLength);
 
-    var name = constantPool[nameIndex - 1]['bytes'];
+    var name;
+    if (constantPool[nameIndex - 1] !== undefined){
+        name = constantPool[nameIndex - 1].bytes;
+    }
     var endPos = file.tell();
 
     if (name == "ConstantValue"){

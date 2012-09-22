@@ -73,7 +73,7 @@ a {
     font-family: monospace;
     white-space: pre;
 }
-.cn, .fn {
+.cn, .fn, .scn {
     font-weight: bold;
     color: #7F0000;
 }
@@ -87,6 +87,8 @@ a {
 }
 
 .ck, .ek {
+    color: blue;
+    font-weight: bold;
 }
 
 .mt, .ft, .pt {
@@ -100,4 +102,9 @@ a {
 
 .opcode {
     color: navy;
+}
+
+.comment_start, .comment {
+    font-style: italic;
+    color: grey;
 }

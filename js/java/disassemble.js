@@ -1,5 +1,45 @@
-function get_java_constant_comments(constants, bytes){
+function get_java_constant_comments(constants, value){
+    var c = constants[value - 1];
+    switch(c.type){
+    case 'methodRef':
+        var nameAndType = constants[c.nameAndTypeIndex - 1];
+        var typeAndParams = descriptor2TypeAndParams(nameAndType.descriptor);
+        var params = "";
+        var param;
 
+        for (var i = 0; (param = typeAndParams[1][i]) !== undefined; i++){
+            if (i != 0){ params += ", "; }
+            params += asClassName(param);
+        }
+
+        return (asClassName(typeAndParams[0]) + ' '
+                + asClassName(constants[c.classIndex - 1].name) + '.'
+                + nameAndType.name
+                + '(' + params + ')');
+
+    case 'int':
+    case 'long':
+    case 'float':
+    case 'double':
+        return ('' + c.bytes);
+
+    case 'fieldRef':
+        var nameAndType = constants[c.nameAndTypeIndex - 1];
+        var type = descriptor2Type(nameAndType.descriptor);
+        return (asClassName(type) + ' '
+                + asClassName(constants[c.classIndex - 1].name) + '.'
+                + nameAndType.name);
+
+    case 'string':
+        return '"' + c.string + '"';
+
+    case 'class':
+        return asClassName(c.name);
+
+    default:
+        console.log(c.type, c, constants[c.nameAndTypeIndex - 1]);
+
+    }
 }
 
 
@@ -47,7 +87,7 @@ function disassemble_java_opcode(f, tree, constantPool){
             val = undefined;
             index = param.startsWith('index');
         }
-        else if (bytes === undefined){
+        else if (bytes !== undefined){
             if (param.startsWith('indexbyte') || param.startsWith('byte')){
                 bytes = (bytes << 8) + val;
                 val = undefined;
@@ -56,27 +96,29 @@ function disassemble_java_opcode(f, tree, constantPool){
                 if (index){
                     addNodeList(tree, [aNode("span", "val", [txtNode('#'+ bytes)]), spNode()]);
                     comment = get_java_constant_comments(constantPool, bytes);
+                    bytes = undefined;
                     if (comment !== undefined){ comments.push(comment); }
                 }
                 else{
                     addNodeList(tree, [aNode("span", "val", [txtNode('' + bytes)]), spNode()]);
+                    comment = get_java_constant_comments(constantPool, bytes);
+                    bytes = undefined;
+                    if (comment !== undefined){ comments.push(comment); }
                 }
             }
         }
 
         if (val !== undefined){
-            if (info[0].indexOf('push') !== -1){
+            if (info[0].indexOf('push') === -1){
                 comment = get_java_constant_comments(constantPool, val);
                 if (comment !== undefined){ comments.push(comment); }
             }
-
-
             addNodeList(tree, [aNode("span", "val", [txtNode('#' + val)]), spNode()]);
         }
-    }
+    } // {endfor}
 
     if (bytes !== undefined){
-        if (info[0].indexOf('push') !== -1){
+        if (info[0].indexOf('push') === -1){
             comment = get_java_constant_comments(constantPool, bytes);
             if (comment !== undefined){ comments.push(comment); }
         }
@@ -84,13 +126,24 @@ function disassemble_java_opcode(f, tree, constantPool){
         addNodeList(tree, [aNode("span", "val", [txtNode('#' + bytes)]), spNode()]);
     }
 
+
+    if (comments.length > 0){
+        addNodeList(tree, [spNode(), aNode("span", "comment_start", [txtNode("// ")])]);
+        for (var i = 0; (comment = comments[i]) !== undefined; i++){
+            addNodeList(tree, [spNode(), aNode("span", "comment", [txtNode(comment)])]);
+        }
+    }
     addNodeList(tree, [brNode()]);
 
 }
 
 
 function disassemble_java_bytecode(method, tree, constantPool){
-    var f = new FileLikeWrapper(method.attributes['Code']);
+    if (method.attributes.Code === undefined){
+        return ;
+    }
+
+    var f = new FileLikeWrapper(method.attributes.Code);
 
     var max_stack = f.readShort();
     var max_locals = f.readShort();
