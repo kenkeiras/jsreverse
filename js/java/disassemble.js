@@ -58,12 +58,12 @@ function disassemble_java_opcode(f, constantPool){
 
     var param;
     var bytes = undefined;
-    var index = false;
+    var branch = false;
 
     for (var i = 0;(param = info[1][i]) !== undefined; i++){
 
         var current_param = {};
-        var type = param.replace(/[1234]/, '').replace(/^index/, '');
+        var type = param.replace(/[1234]/, '').replace(/^(index)|(branch)/, '');
         var val;
 
         switch(type){
@@ -89,31 +89,23 @@ function disassemble_java_opcode(f, constantPool){
         }
 
 
-        if (['indexbyte1', 'byte1'].indexOf(param) !== -1){
+        if (['indexbyte1', 'byte1', 'branchbyte1'].indexOf(param) !== -1){
             bytes = val;
             val = undefined;
-            index = param.startsWith('index');
+            branch = param.startsWith('branch');
         }
         else if (bytes !== undefined){
-            if (param.startsWith('indexbyte') || param.startsWith('byte')){
+            if (param.startsWith('indexbyte') || param.startsWith('byte') || param.startsWith('branchbyte')){
                 bytes = (bytes << 8) + val;
                 val = undefined;
             }
             else{
-                if (index){
-                    comment = get_java_constant_comments(constantPool, bytes);
-                    if(comment !== undefined){comments.push(comment)};
+                if (branch){ bytes++; }
+                comment = get_java_constant_comments(constantPool, bytes);
+                if(comment !== undefined){comments.push(comment)};
 
-                    bytes = undefined;
-                    params.push({value: '#' + bytes});
-                }
-                else{
-                    comment = get_java_constant_comments(constantPool, bytes);
-                    if(comment !== undefined){comments.push(comment)};
-
-                    bytes = undefined;
-                    params.push({value: '' + bytes});
-                }
+                bytes = undefined;
+                params.push({value: '#' + bytes});
             }
         }
 
@@ -127,6 +119,7 @@ function disassemble_java_opcode(f, constantPool){
     } // {endfor}
 
     if (bytes !== undefined){
+        if (branch){ bytes++; }
         if (info[0].indexOf('push') === -1){
             comment = get_java_constant_comments(constantPool, bytes);
             if(comment !== undefined){comments.push(comment)};
@@ -160,10 +153,10 @@ function disassemble_java_bytecode(method, constantPool){
         var handler_pc = f.readShort();
         var catch_type = f.readShort();
 
-        methodl.exceptions.push({start_pc:   start_pc,
-                                 end_pc:     end_pc,
-                                 handler_pc: handler_pc,
-                                 catch_type: catch_type});
+        method.exceptions.push({start_pc:   start_pc,
+                                end_pc:     end_pc,
+                                handler_pc: handler_pc,
+                                catch_type: catch_type});
     }
 
     var attributes_count = f.readShort();
@@ -177,7 +170,6 @@ function disassemble_java_bytecode(method, constantPool){
     method.opcodes = [];
     while (!code_f.feof()){
         method.opcodes.push(disassemble_java_opcode(code_f, constantPool));
-        //disassemble_java_opcode(code_f, tree, constantPool);
     }
 }
 
