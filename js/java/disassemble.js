@@ -105,7 +105,7 @@ function disassemble_java_opcode(f, constantPool){
                 if(comment !== undefined){comments.push(comment)};
 
                 bytes = undefined;
-                params.push({value: '#' + bytes});
+                params.push({value: bytes});
             }
         }
 
@@ -114,7 +114,7 @@ function disassemble_java_opcode(f, constantPool){
                 comment = get_java_constant_comments(constantPool, val);
                 if(comment !== undefined){comments.push(comment)};
             }
-            params.push({value: '#' + val});
+            params.push({value: val});
         }
     } // {endfor}
 
@@ -124,7 +124,7 @@ function disassemble_java_opcode(f, constantPool){
             comment = get_java_constant_comments(constantPool, bytes);
             if(comment !== undefined){comments.push(comment)};
         }
-        params.push({value: '#' + bytes});
+        params.push({value: bytes});
     }
 
     return opcode;

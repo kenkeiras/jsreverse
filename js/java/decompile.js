@@ -110,11 +110,11 @@ javaClass.prototype.guessFields = function() {
             var loaded_value;
             for (var i = 0; (opcode = initMethod.opcodes[i]); i++){
                 if (opcode.mnemonic.startsWith('ldc')){
-                    loaded_value = opcode.params[0].value.substring(1);
+                    loaded_value = opcode.params[0].value;
                 }
 
                 else if(opcode.mnemonic === 'putfield'){
-                    var referred_field_number = this.constantPool[Number(opcode.params[0].value.substring(1)) - 1].nameAndTypeIndex;
+                    var referred_field_number = this.constantPool[Number(opcode.params[0].value) - 1].nameAndTypeIndex;
                     var referred_field = this.constantPool[referred_field_number - 1];
                     if ((referred_field.name == field.name) && (loaded_value !== undefined)){
                         field.guessedValue = '' + this.constantPool[loaded_value - 1].bytes;
