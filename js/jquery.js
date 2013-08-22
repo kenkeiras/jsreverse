@@ -1,1 +1,1 @@
-/var/www/reverse/js/jquery-1.7.2.min.js
+jquery-1.7.2.min.js
