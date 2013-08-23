@@ -358,6 +358,15 @@ function show_decompiled_java_method(method, tree, object, level){
                                brNode()]);
             break;
 
+        case "athrow":
+            addNodeList(tree, [spNode((level + 1) * indentation),
+                               txtNode("throw "),
+                               txtNode(stack.pop()),
+                               txtNode(";"),
+                               brNode()]);
+            break;
+
+
         default:
             addNodeList(tree, [spNode((level + 1) * indentation),
                                txtNode("// ")]);
