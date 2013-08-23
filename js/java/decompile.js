@@ -348,6 +348,14 @@ function show_decompiled_java_method(method, tree, object, level){
                         txtNode(name)]);
             break;
 
+        case "areturn":
+            addNodeList(tree, [spNode((level + 1) * indentation),
+                               txtNode("return "),
+                               txtNode(stack.pop()),
+                               txtNode(";"),
+                               brNode()]);
+            break;
+
         default:
             addNodeList(tree, [spNode((level + 1) * indentation),
                                txtNode("// ")]);
