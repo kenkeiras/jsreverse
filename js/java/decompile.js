@@ -166,7 +166,7 @@ function decompile_call(stack, opcode, object, level){
         info.push(txtNode(arguments.pop()));
     }
 
-    info = info.concat([txtNode(")"), txtNode(";"), brNode()]);
+    info = info.concat([txtNode(")"), txtNode(";")]);
 
     return info;
 }
@@ -287,29 +287,39 @@ function show_decompiled_java_method(method, tree, object, level){
             break;
 
         case "invokevirtual":
-            dec_call = decompile_call(stack, opcode, object, level);
+            var dec_call = decompile_call(stack, opcode, object, level);
             var invoked_object = stack.pop();
 
-            var decompilation = [spNode((level + 1) * indentation)];
+            var decompilation = dec_call;
             var returned_type = get_call_type_and_params(opcode, object)[0];
+            var assignation = [spNode((level + 1) * indentation)];
 
             if (returned_type !== "void"){
 
                 var result = assign_variable_name(method, i, object, returned_type);
-                decompilation = decompilation.concat([
+                assignation = assignation.concat([
                     aNode("span", "pt", [txtNode(asClassName(returned_type))]),
                     spNode(),
                     txtNode(result),
                     txtNode(" = ")]);
-
-                stack.push(result);
             }
 
             if (invoked_object !== "this"){
-                decompilation = decompilation.concat([txtNode(invoked_object),
-                                                      txtNode(".")]);
+                decompilation = [txtNode(invoked_object),
+                                 txtNode(".")].concat(decompilation);
             }
-            addNodeList(tree, decompilation.concat(dec_call));
+
+            if ((returned_type !== "void") &&
+                (method.opcodes.length > (i + 1)) &&
+                (method.opcodes[i + 1].mnemonic == "putfield")){
+
+                stack.push(decompilation);
+            } else {
+                if (returned_type !== "void"){
+                    stack.push(result);
+                }
+                addNodeList(tree, assignation.concat(decompilation, [brNode()]));
+            }
             break;
 
         case "new":
