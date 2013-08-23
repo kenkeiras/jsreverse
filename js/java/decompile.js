@@ -175,14 +175,16 @@ function decompile_call(stack, opcode, object, level){
 function assign_variable_name(method, id, object, type){
     // Placeholder
     if (method.variable_names[id] === undefined){
-        method.variable_names[id] = type.toLowerCase().replace(/^([^/]+\/)*/, "") + "_" + id;
+        method.variable_names[id] = type.toLowerCase().replace(/^([^/]+\/)*/, "").
+            replace(/\[\]/, "s") + "_" + id;
     }
     return method.variable_names[id];
 }
 
 function assign_param_name(method, index, type){
     if (method.param_names[index] === undefined){
-        method.param_names[index] = type.toLowerCase().replace(/^([^/]+\/)*/, "") + "_" + index;
+        method.param_names[index] = type.toLowerCase().replace(/^([^/]+\/)*/, "").
+            replace(/\[\]/, "s") + "_" + index;
     }
     return method.param_names[index];
 }
