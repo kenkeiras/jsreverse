@@ -339,6 +339,15 @@ function show_decompiled_java_method(method, tree, object, level){
                 stack.push(result);
             break;
 
+        case "getstatic":
+            var ref = object.constantPool[opcode.params[0].value - 1];
+            var name = object.constantPool[ref.nameAndTypeIndex - 1].name;
+            var cls =  object.constantPool[ref.classIndex - 1].name;
+            stack.push([txtNode(asClassName(cls)),
+                        txtNode("."),
+                        txtNode(name)]);
+            break;
+
         default:
             addNodeList(tree, [spNode((level + 1) * indentation),
                                txtNode("// ")]);
