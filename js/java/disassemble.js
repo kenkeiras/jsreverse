@@ -44,6 +44,7 @@ function get_java_constant_comments(constants, value){
 
 
 function disassemble_java_opcode(f, constantPool){
+    var pos = f.tell();
     var operation_code = f.readByte();
     var info = OPCODES[operation_code];
     var opcode = {"mnemonic": info[0],
@@ -51,7 +52,8 @@ function disassemble_java_opcode(f, constantPool){
                   "stack_in": info[2],
                   "stack_out": info[3],
                   "params": [],
-                  "comments": []};
+                  "comments": [],
+                  "position": pos};
 
     var params = opcode.params;
     var comments = opcode.comments;

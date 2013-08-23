@@ -193,9 +193,17 @@ function assign_param_name(method, index, type){
 function show_decompiled_java_method(method, tree, object, level){
     var stack = []; // Java data stack
     var opcode;
+    var frame = []; // Block bounds
     for (var i = 0; opcode = method.opcodes[i]; i++){
         console.log(opcode);
         console.log(stack);
+        while ((frame.length > 0) && (frame[frame.length - 1] <= opcode.position)){
+            frame.pop();
+            level--;
+            addNodeList(tree, [spNode((level + 1) * indentation),
+                               txtNode("}"),
+                               brNode()]);
+        }
 
         switch(opcode.mnemonic){
         /* Reference 0 seems to refer to the called object */
@@ -366,6 +374,15 @@ function show_decompiled_java_method(method, tree, object, level){
                                brNode()]);
             break;
 
+        case "ifnonnull":
+            addNodeList(tree, [spNode((level + 1) * indentation),
+                               txtNode("if ("),
+                               txtNode(stack.pop()),
+                               txtNode(" == null){"),
+                               brNode()]);
+            level++;
+            frame.push(opcode.params[0].value);
+            break;
 
         default:
             addNodeList(tree, [spNode((level + 1) * indentation),
