@@ -59,7 +59,9 @@ function readMethod(file, constantPool){
         type:  type,
         params: params,
         attributes: attributes,
-    }
+        param_names: {},
+        variable_names: {}
+    };
 }
 
 
