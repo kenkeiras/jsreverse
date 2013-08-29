@@ -49,7 +49,7 @@ function handleFileSelect(evt) {
                     errorZone.innerHTML =
                          'Sorry, "<em>' + fname + '</em>" couldn\'t be disassembled.';
                 }
-            }
+            };
         }(f.name);
 
         reader.readAsBinaryString(f);
@@ -106,10 +106,9 @@ function initialize(){
     }
 
     // Setup the Drag and Drop listeners.
-    var dropZone = document.getElementById('presentation');
-    dropZone.addEventListener('dragenter', handleDragEnter, true);
-    dropZone.addEventListener('dragover', handleDragOver, true);
-    dropZone.addEventListener('drop', handleFileSelect, true);
+    document.addEventListener('dragenter', handleDragEnter, true);
+    document.addEventListener('dragover', handleDragOver, true);
+    document.addEventListener('drop', handleFileSelect, true);
 
     return true;
 }

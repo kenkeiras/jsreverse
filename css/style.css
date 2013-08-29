@@ -1,5 +1,5 @@
 html body {
-    background-color: rgba(50, 50, 50, .1);
+    background-color: white;
     margin: 0px;
 }
 
@@ -20,31 +20,55 @@ table {
     width: 100%;
     display: none;
     text-align: left;
+    height: 100%;
+    background-color: white;
 }
 
-#editorTree, #editorText {
-    width: 90%;
-    display: block;
-    background-color: rgba(255, 255, 255, .99);
-    padding: 10px ;
+#navigation {
+    float: left;
+    padding: 1ex;
+    margin: 0px;
+    padding-right: 2em;
+}
+
+#editorTree {
     list-style: none;
-
-    border: 1px dashed #AAA;
-    border-radius: 3px;
+    padding: 0px;
 }
 
-div#title {
+#editorTree > li > ul {
+    list-style: none;
+    padding-left: 2ex;
+    margin-bottom: 2ex;
+}
+
+#code {
+    padding: 1ex;
+    border-left: 1px solid #AAAAAA;
+}
+
+div#upbar {
     margin: 0px;
     padding: 0.5ex;
 
     text-align: left;
+
+    background-color: white;
+    border-bottom: 1px dashed #AAA;
+}
+
+span#title{
     font-weight: bold;
     font-size: 200%;
     color: #555555;
     font-family: Arial,'DejaVu Sans','Liberation Sans',Freesans,sans-serif;
+}
 
-    background-color: white;
-    border-bottom: 1px dashed #AAA;
+#upbar > .options {
+    vertical-align: bottom;
+    float: right;
+
+    font-family: sans;
 }
 
 .frameContainer {
