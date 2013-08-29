@@ -1,6 +1,6 @@
 html body {
-    background-image: url('../img/bg.png');
-    text-align: center;
+    background-color: rgba(50, 50, 50, .1);
+    margin: 0px;
 }
 
 td {
@@ -33,26 +33,23 @@ table {
     border-radius: 3px;
 }
 
-#initial {
-}
+div#title {
+    margin: 0px;
+    padding: 0.5ex;
 
-.frame {
-    min-width: 100px;
-    min-height: 100px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 200%;
+    color: #555555;
+    font-family: Arial,'DejaVu Sans','Liberation Sans',Freesans,sans-serif;
 
-    display: block;
-
-    padding: 10%;
-
-    background-color: rgba(50, 50, 50, .1);
-    border: 1px dashed #AAA;
-    border-radius: 3px;
+    background-color: white;
+    border-bottom: 1px dashed #AAA;
 }
 
 .frameContainer {
     position: relative;
-    margin: 0px auto;
-    width: 65%;
+    text-align: center;
 }
 
 .errorMessage {
@@ -60,7 +57,10 @@ table {
 }
 
 .dropMessage {
+    margin-top: 10%;
     font-family: sans;
+    font-weight: bold;
+    color: #444444;
 }
 
 
@@ -70,7 +70,7 @@ a {
 
 /* Source code style */
 .code {
-    font-family: monospace;
+    font-family: Courier, "Courier New", monospace;
     white-space: pre;
 }
 .cn, .fn, .scn {

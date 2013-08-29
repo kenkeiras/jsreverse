@@ -36,10 +36,7 @@ function handleFileSelect(evt) {
                 if (deco !== false){
 
                     // Hide the drop zone and show the editor
-                    $('#initial').transition({opacity: 0}).
-                                        css({display: "none"});
-
-                    $('#fileDropZone').transition({opacity: 0}).
+                    $('.frameContainer').transition({opacity: 0}).
                                         css({display: "none"});
 
                     $('#editor').css({display: "block"}).
