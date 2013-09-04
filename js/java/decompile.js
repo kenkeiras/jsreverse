@@ -382,7 +382,9 @@ function show_decompiled_java_method(method, tree, object, level){
 
         case "ifnonnull":
             addNodeList(tree, [spNode((level + 1) * indentation),
-                               txtNode("if ("),
+                               aNode("span", "k", [txtNode("if")]),
+                               spNode(),
+                               aNode("span", "o", [txtNode("(")]),
                                txtNode(stack.pop()),
                                txtNode(" == null){"),
                                brNode()]);
