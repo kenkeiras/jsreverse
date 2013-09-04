@@ -314,7 +314,7 @@ function show_decompiled_java_method(method, tree, object, level){
 
                 var result = assign_variable_name(method, i, object, returned_type);
                 assignation = assignation.concat([
-                    aNode("span", "nc", [txtNode(asClassName(returned_type))]),
+                    aNode("span", "kt", [txtNode(asClassName(returned_type))]),
                     spNode(),
                     txtNode(result),
                     txtNode(" = ")]);
@@ -343,7 +343,7 @@ function show_decompiled_java_method(method, tree, object, level){
                 var result = assign_variable_name(method, i, object, type);
                 addNodeList(tree, [
                     spNode((level + 1) * indentation),
-                    aNode("span", "nc", [txtNode(asClassName(type))]),
+                    aNode("span", "kt", [txtNode(asClassName(type))]),
                     spNode(),
                     txtNode(result),
                     txtNode(" = new "),
@@ -520,7 +520,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                 addNodeList(src, [txtNode(", ")]);
             }
 
-            addNodeList(src, [aNode("span", "nc", [txtNode(asClassName(param))])]);
+            addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(param))])]);
 
             // Give the parameter a name
             if (!(prefer_bytecode || method.name.startsWith("<"))){
