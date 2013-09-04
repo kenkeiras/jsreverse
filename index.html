@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="application/html; charset=UTF-8" />
-    <title>jsRever.se -- Online decompiler</title>
+    <title>jsReverse -- Online decompiler</title>
     <link rel="stylesheet" type="text/css" href="css/style.css" />
 
     <!-- JQuery and libs -->
@@ -30,30 +30,32 @@
     <script type="text/javascript" src="js/interface.js"></script>
   </head>
   <body onload="return initialize()">
+
     <div id="presentation">
-        <div id="initial">
-            &lt;---- Image ------&gt;
-            <br /><br /><br /><br /><br />
-            &lt;---- Slideshow ------&gt;
-            <br /><br />
-        </div>
+        <div id="upbar"><span id="title">jsReverse</span>
+          <div class="options">
+            <span class="option">
+              <input type="checkbox" id="prefer_bytecode" onchange="return refreshCode();" name="prefer_bytecode" checked="checked" />
+              <label for="prefer_bytecode">Show bytecode</label>
+            </span>
+        </div></div>
         <div id="editor">
-            <table>
-                <tr><td>
-                    <ul id="editorTree"></ul>
-                    <label for="prefer_bytecode">Prefer bytecode</label>
-                    <input type="checkbox" id="prefer_bytecode" onchange="return refreshCode();" name="prefer_bytecode" checked="checked" />
-
-                </td><td id="editorText">
-                </td></tr>
-
-            </table>
+          <table>
+            <td><tr>
+                <div id="navigation">
+                  <ul id="editorTree"></ul>
+                </div>
+            </tr></td>
+            <tr><td>
+                <div id="code">
+                  <div id="editorText">
+                </div></div>
+            </td></tr>
+          </table>
         </div>
         <div class="frameContainer">
-            <div class="frame" id="fileDropZone">
-                <div class="dropMessage">Drop here the file(s) you want to reverse.</div>
-                <div id="errorMessage" class="errorMessage"></div>
-            </div>
+          <div class="dropMessage">Drop here the file(s) you want to reverse.</div>
+          <div id="errorMessage" class="errorMessage"></div>
         </div>
     </div>
     <div id="footer">
