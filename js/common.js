@@ -9,6 +9,22 @@ String.prototype.startsWith = function(str){
     return (this.match("^" + str) == str);
 };
 
+/* Add a array.flatten prototype */
+Array.prototype.flatten = function(){
+    var result = [];
+
+    for (var i = 0; i < this.length; i++){
+        var child = this[i];
+        if (child.__proto__ === Array.prototype){
+            result = result.concat(child.flatten());
+        } else {
+            result.push(child);
+        }
+    }
+    return result;
+};
+
+
 
 /* <DOM building> */
 /**
@@ -30,6 +46,7 @@ function aNode(nType, nClass, children){
     }
 
     var child;
+    children = children.flatten();
     for(var i = 0; child = children[i]; i++){
         node.appendChild(child);
     }
@@ -39,7 +56,8 @@ function aNode(nType, nClass, children){
 
 
 /**
- * Description: Creates a text node.
+ * Description: Creates a text node, if the entry is a list of Text nodes
+ *               a returnsthe same object.
  *
  * @param text The initial text.
  *
@@ -47,7 +65,12 @@ function aNode(nType, nClass, children){
  *
  */
 function txtNode(text){
-    return document.createTextNode(text);
+    if ((text.__proto__ === [].__proto__) &&
+        (text[0].__proto__ === spNode().__proto__)){
+        return text;
+    } else {
+        return document.createTextNode(text);
+    }
 }
 
 
@@ -60,6 +83,7 @@ function txtNode(text){
  */
 function addNodeList(parent, children){
     var child;
+    children = children.flatten();
     for(var i = 0; child = children[i]; i++){
         parent.appendChild(child);
     }
