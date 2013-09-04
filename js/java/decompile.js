@@ -486,6 +486,11 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
     var method;
     for (i = 0; method = this.methods[i]; i++){
 
+        /* Methods wrapped with <> are helpers, not presented in source code */
+        if ((!prefer_bytecode) && (method.name.startsWith("<"))){
+            continue;
+        }
+
         var anchor = aNode("a", "mn", [txtNode(asClassName(method.name))]);
         anchor.setAttribute("name", "__" + asClassName(this.name) + "__" +
                             escape(method.name));
@@ -524,8 +529,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                           brNode()]);
 
 
-        /* Methods wrapped with <> are helpers, not presented in source code */
-        if (prefer_bytecode || method.name.startsWith("<")) {
+        if (prefer_bytecode) {
             show_disassembled_java_bytecode(method, src, this.constantPool);
         }
         else {
