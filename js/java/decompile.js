@@ -150,7 +150,8 @@ function decompile_call(stack, opcode, object, level){
      */
     var params = descriptor2TypeAndParams(function_info.descriptor)[1];
 
-    info = info.concat([txtNode(function_name), txtNode("(")]);
+    info = info.concat([aNode("span", "n", [txtNode(function_name)]),
+                        aNode("span", "o", [txtNode("(")])]);
     var arguments = [];
 
     for(var i = 0; i < params.length; i++){
@@ -159,14 +160,15 @@ function decompile_call(stack, opcode, object, level){
     var first = true;
     for (;arguments.length !== 0;){
         if (!first){
-            info.push(txtNode(", "));
+            info.push(aNode("span", "o", [txtNode(", ")]));
         } else {
             first = false;
         }
         info.push(txtNode(arguments.pop()));
     }
 
-    info = info.concat([txtNode(")"), txtNode(";")]);
+    info = info.concat([aNode("span", "o", [txtNode(")")]),
+                        aNode("span", "o", [txtNode(";")])]);
 
     return info;
 }
@@ -201,22 +203,23 @@ function show_decompiled_java_method(method, tree, object, level){
             frame.pop();
             level--;
             addNodeList(tree, [spNode((level + 1) * indentation),
-                               txtNode("}"),
+                               aNode("span", "o", [txtNode("}")]),
                                brNode()]);
         }
 
         switch(opcode.mnemonic){
         /* Reference 0 seems to refer to the called object */
         case "aload_0":
-            stack.push("this");
+            stack.push("this"); /* @TODO Style */
             break;
 
         /* First argument */
         case "aload_1":
-            stack.push(assign_param_name(method, 1));
+            stack.push(assign_param_name(method, 1)); /* @TODO Style */
             break;
 
         case "ldc":
+            /* @TODO style */
             stack.push(get_java_constant_comments(object.constantPool,
                                                   opcode.params[0].value));
             break;
@@ -231,7 +234,7 @@ function show_decompiled_java_method(method, tree, object, level){
                 }
             }
             if (value !== undefined){
-                stack.push(value);
+                stack.push(aNode("span", "mi", [txtNode(value)]));
             }
             break;
 
@@ -243,6 +246,7 @@ function show_decompiled_java_method(method, tree, object, level){
 
             addNodeList(tree, [spNode((level + 1) * indentation)]);
 
+            /* @TODO Style */
             if (object_ref !== 'this'){
                 addNodeList(tree, [txtNode(object_ref),
                                    txtNode(".")]);
@@ -263,6 +267,7 @@ function show_decompiled_java_method(method, tree, object, level){
                 var value = assign_variable_name(method, i, object, returned_type);
                 stack.push(value);
 
+                /* @TODO Style */
                 addNodeList(tree, [txtNode(object_ref),
                                    txtNode(".")]);
 
@@ -282,6 +287,7 @@ function show_decompiled_java_method(method, tree, object, level){
 
         case "return":
             if (i != (method.opcodes.length - 1)){
+                /* @TODO Style */
                 addNodeList(tree, [spNode((level + 1) * indentation),
                                    txtNode("return;"),
                                    brNode()]);
@@ -308,7 +314,7 @@ function show_decompiled_java_method(method, tree, object, level){
 
                 var result = assign_variable_name(method, i, object, returned_type);
                 assignation = assignation.concat([
-                    aNode("span", "pt", [txtNode(asClassName(returned_type))]),
+                    aNode("span", "nc", [txtNode(asClassName(returned_type))]),
                     spNode(),
                     txtNode(result),
                     txtNode(" = ")]);
@@ -337,11 +343,11 @@ function show_decompiled_java_method(method, tree, object, level){
                 var result = assign_variable_name(method, i, object, type);
                 addNodeList(tree, [
                     spNode((level + 1) * indentation),
-                    aNode("span", "pt", [txtNode(asClassName(type))]),
+                    aNode("span", "nc", [txtNode(asClassName(type))]),
                     spNode(),
                     txtNode(result),
                     txtNode(" = new "),
-                    txtNode(asClassName(type)),
+                    aNode("span", "nc", [txtNode(asClassName(type))]),
                     txtNode("("),
                     txtNode(");"),
                     brNode()]);
@@ -422,22 +428,22 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
     for (i = 0; flag = possibleClassFlags[i]; i++){
 
         if (this.flags[flag]){
-            addNodeList(src, [aNode("span", "cf", [txtNode(flag)]), spNode()]);
+            addNodeList(src, [aNode("span", "k", [txtNode(flag)]), spNode()]);
         }
     }
 
     // class name and superclass
-    addNodeList(src, [aNode("span", "ck", [txtNode("class")]),
+    addNodeList(src, [aNode("span", "k", [txtNode("class")]),
                       spNode(),
-                      aNode("span", "cn", [txtNode(asClassName(this.name))]),
+                      aNode("span", "nc", [txtNode(asClassName(this.name))]),
                       spNode()]);
 
     if (this.superClass.name != 'java/lang/Object'){
-        addNodeList(src, [aNode("span", "ek", [txtNode("extends")]), spNode(),
-                          aNode("span", "scn", [txtNode(asClassName(this.superClass.name))]), spNode()]);
+        addNodeList(src, [aNode("span", "k", [txtNode("extends")]), spNode(),
+                          aNode("span", "nc", [txtNode(asClassName(this.superClass.name))]), spNode()]);
     }
 
-    addNodeList(src, [aNode("span", "obk", [txtNode("{")]),
+    addNodeList(src, [aNode("span", "o", [txtNode("{")]),
                       brNode()]);
 
     // Field list
@@ -451,14 +457,14 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
         addNodeList(src, [spNode(indentation)]);
         for (j = 0; flag = possibleFieldFlags[j]; j++){
             if (field.flags[flag]){
-                addNodeList(src, [aNode("span", "ff", [txtNode(escape(flag))]),
+                addNodeList(src, [aNode("span", "k", [txtNode(escape(flag))]),
                                   spNode()]);
             }
         }
 
-        addNodeList(src, [aNode("span", "ft", [txtNode(asClassName(field.type))]),
+        addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(field.type))]),
                           spNode(),
-                          aNode("span", "fn", [txtNode(escape(field.name))])]);
+                          aNode("span", "nv", [txtNode(escape(field.name))])]);
 
         var ind = Number(field.attributes["ConstantValue"]);
         var val = undefined;
@@ -473,9 +479,9 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                 val += "f";
             }
             addNodeList(src, [spNode(),
-                              aNode("span", "ae", [txtNode("=")]),
+                              aNode("span", "o", [txtNode("=")]),
                               spNode(),
-                              aNode("span", "val", [txtNode(escape(val))])]);
+                              aNode("span", "n", [txtNode(escape(val))])]);
         }
 
         addNodeList(src, [txtNode(";"), brNode()]);
@@ -491,22 +497,22 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
             continue;
         }
 
-        var anchor = aNode("a", "mn", [txtNode(asClassName(method.name))]);
+        var anchor = aNode("a", "nf", [txtNode(asClassName(method.name))]);
         anchor.setAttribute("name", "__" + asClassName(this.name) + "__" +
                             escape(method.name));
 
         addNodeList(src, [spNode(indentation)]);
         for (j = 0; flag = possibleMethodFlags[j]; j++){
             if (method.flags[flag]){
-                addNodeList(src, [aNode("span", "mf", [txtNode(escape(flag))]),
+                addNodeList(src, [aNode("span", "k", [txtNode(escape(flag))]),
                                   spNode()]);
             }
         }
 
 
-        addNodeList(src, [aNode("span", "mt", [txtNode(asClassName(method.type))]),
+        addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(method.type))]),
                           txtNode(" "), anchor,
-                          aNode("span", "op", [txtNode("(")])]);
+                          aNode("span", "o", [txtNode("(")])]);
 
         // Method parameters
         for (var j = 0; param = method.params[j]; j++){
@@ -514,7 +520,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                 addNodeList(src, [txtNode(", ")]);
             }
 
-            addNodeList(src, [aNode("span", "pt", [txtNode(asClassName(param))])]);
+            addNodeList(src, [aNode("span", "nc", [txtNode(asClassName(param))])]);
 
             // Give the parameter a name
             if (!(prefer_bytecode || method.name.startsWith("<"))){
@@ -524,8 +530,8 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
             }
         }
 
-        addNodeList(src, [aNode("span", "cp", [txtNode(")")]), spNode(),
-                          aNode("span", "obk", [txtNode("{")]),
+        addNodeList(src, [aNode("span", "o", [txtNode(")")]), spNode(),
+                          aNode("span", "o", [txtNode("{")]),
                           brNode()]);
 
 
@@ -537,11 +543,11 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
         }
 
         addNodeList(src, [spNode(indentation),
-                          aNode("span", "cbk", [txtNode("}")]),
+                          aNode("span", "o", [txtNode("}")]),
                           brNode(), brNode()]);
     }
 
-    addNodeList(src, [aNode("span", "cbk", [txtNode("}")])]);
+    addNodeList(src, [aNode("span", "o", [txtNode("}")])]);
 
     return src;
 }
