@@ -501,7 +501,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                               aNode("span", "n", [txtNode(escape(val))])]);
         }
 
-        addNodeList(src, [txtNode(";"), brNode()]);
+        addNodeList(src, [oNode(";"), brNode()]);
     }
     addNodeList(src, [brNode()]);
 
@@ -560,7 +560,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
         }
 
         addNodeList(src, [spNode(indentation),
-                          oNode([txtNode("}")]),
+                          oNode("}"),
                           brNode(), brNode()]);
     }
 
