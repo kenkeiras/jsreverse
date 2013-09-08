@@ -215,7 +215,7 @@ function show_decompiled_java_method(method, tree, object, level){
         switch(opcode.mnemonic){
         /* Reference 0 seems to refer to the called object */
         case "aload_0":
-            stack.push(aNode("span", "n", [txtNode("this")]));
+            stack.push("this");
             break;
 
         /* First argument */
@@ -279,17 +279,17 @@ function show_decompiled_java_method(method, tree, object, level){
                 stack.push(value);
 
                 /* @TODO Style */
-                addNodeList(tree, [txtNode(object_ref),
-                                   oNode(".")]);
-
                 addNodeList(tree, [spNode((level + 1) * indentation),
-                                   txtNode(returned_type),
+                                   txtNode(asClassName(returned_type)),
                                    spNode(),
                                    txtNode(value),
                                    oNode(" = ")]);
 
 
-                addNodeList(tree, [txtNode(nameAndType.name),
+                addNodeList(tree, [txtNode(object_ref),
+                                   oNode("."),
+                                   txtNode(nameAndType.name),
+                                   oNode(";"),
                                    brNode()]);
             } else {
                 stack.push(nameAndType.name);
