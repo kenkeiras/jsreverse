@@ -513,7 +513,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
 
 
         addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(method.type))]),
-                          txtNode(" "), anchor,
+                          spNode(), anchor,
                           aNode("span", "o", [txtNode("(")])]);
 
         // Method parameters
