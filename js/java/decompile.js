@@ -155,7 +155,7 @@ function decompile_call(stack, opcode, object, level){
      */
     var params = descriptor2TypeAndParams(function_info.descriptor)[1];
 
-    info = info.concat([oNode(function_name),
+    info = info.concat([aNode("span", "na", [txtNode(function_name)]),
                         oNode("(")]);
     var arguments = [];
 
