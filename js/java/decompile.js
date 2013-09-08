@@ -300,7 +300,7 @@ function show_decompiled_java_method(method, tree, object, level){
             if (i != (method.opcodes.length - 1)){
                 /* @TODO Style */
                 addNodeList(tree, [spNode((level + 1) * indentation),
-                                   txtNode("return"),
+                                   aNode("span", "k", [txtNode("return")]),
                                    oNode(";"),
                                    brNode()]);
             }
@@ -359,7 +359,7 @@ function show_decompiled_java_method(method, tree, object, level){
                     spNode(),
                     txtNode(result),
                     oNode(" = "),
-                    txtNode("new "),
+                    aNode("span", "k", [txtNode("new ")]),
                     aNode("span", "nc", [txtNode(asClassName(type))]),
                     oNode("("),
                     oNode(");"),
@@ -379,7 +379,7 @@ function show_decompiled_java_method(method, tree, object, level){
 
         case "areturn":
             addNodeList(tree, [spNode((level + 1) * indentation),
-                               txtNode("return "),
+                               aNode("span", "k", [txtNode("return ")]),
                                txtNode(stack.pop()),
                                oNode(";"),
                                brNode()]);
@@ -387,7 +387,7 @@ function show_decompiled_java_method(method, tree, object, level){
 
         case "athrow":
             addNodeList(tree, [spNode((level + 1) * indentation),
-                               txtNode("throw "),
+                               aNode("span", "k", [txtNode("throw ")]),
                                txtNode(stack.pop()),
                                oNode(";"),
                                brNode()]);
@@ -400,7 +400,7 @@ function show_decompiled_java_method(method, tree, object, level){
                                oNode("("),
                                txtNode(stack.pop()),
                                oNode(" == "),
-                               txtNode("null"),
+                               aNode("span", "kc", [txtNode("null")]),
                                oNode("){"),
                                brNode()]);
             level++;
