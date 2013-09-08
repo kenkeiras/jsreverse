@@ -28,7 +28,7 @@ function asClassName(className){
 
 
 function oNode(content){
-    return aNode("span", "o", content);
+    return aNode("span", "o", [txtNode(content)]);
 }
 
 
@@ -155,8 +155,8 @@ function decompile_call(stack, opcode, object, level){
      */
     var params = descriptor2TypeAndParams(function_info.descriptor)[1];
 
-    info = info.concat([oNode([txtNode(function_name)]),
-                        oNode([txtNode("(")])]);
+    info = info.concat([oNode(function_name),
+                        oNode("(")]);
     var arguments = [];
 
     for(var i = 0; i < params.length; i++){
@@ -165,15 +165,15 @@ function decompile_call(stack, opcode, object, level){
     var first = true;
     for (;arguments.length !== 0;){
         if (!first){
-            info.push(oNode([txtNode(", ")]));
+            info.push(oNode(", "));
         } else {
             first = false;
         }
         info.push(txtNode(arguments.pop()));
     }
 
-    info = info.concat([oNode([txtNode(")")]),
-                        oNode([txtNode(";")])]);
+    info = info.concat([oNode(")"),
+                        oNode(";")]);
 
     return info;
 }
@@ -208,7 +208,7 @@ function show_decompiled_java_method(method, tree, object, level){
             frame.pop();
             level--;
             addNodeList(tree, [spNode((level + 1) * indentation),
-                               oNode([txtNode("}")]),
+                               oNode("}"),
                                brNode()]);
         }
 
@@ -254,10 +254,10 @@ function show_decompiled_java_method(method, tree, object, level){
             /* @TODO Style */
             if (object_ref !== 'this'){
                 addNodeList(tree, [txtNode(object_ref),
-                                   oNode([txtNode(".")])]);
+                                   oNode(".")]);
             }
             addNodeList(tree, [txtNode(nameAndType.name),
-                               oNode([txtNode(" = ")]),
+                               oNode(" = "),
                                txtNode(value),
                                brNode()]);
             break;
@@ -274,13 +274,13 @@ function show_decompiled_java_method(method, tree, object, level){
 
                 /* @TODO Style */
                 addNodeList(tree, [txtNode(object_ref),
-                                   oNode([txtNode(".")])]);
+                                   oNode(".")]);
 
                 addNodeList(tree, [spNode((level + 1) * indentation),
                                    txtNode(returned_type),
                                    spNode(),
                                    txtNode(value),
-                                   oNode([txtNode(" = ")])]);
+                                   oNode(" = ")]);
 
 
                 addNodeList(tree, [txtNode(nameAndType.name),
@@ -295,7 +295,7 @@ function show_decompiled_java_method(method, tree, object, level){
                 /* @TODO Style */
                 addNodeList(tree, [spNode((level + 1) * indentation),
                                    txtNode("return"),
-                                   oNode([txtNode(";")]),
+                                   oNode(";"),
                                    brNode()]);
             }
             break;
@@ -323,12 +323,12 @@ function show_decompiled_java_method(method, tree, object, level){
                     aNode("span", "kt", [txtNode(asClassName(returned_type))]),
                     spNode(),
                     txtNode(result),
-                    oNode([txtNode(" = ")])]);
+                    oNode(" = ")]);
             }
 
             if (invoked_object !== "this"){
                 decompilation = [txtNode(invoked_object),
-                                 oNode([txtNode(".")])].concat(decompilation);
+                                 oNode(".")].concat(decompilation);
             }
 
             if ((returned_type !== "void") &&
@@ -352,11 +352,11 @@ function show_decompiled_java_method(method, tree, object, level){
                     aNode("span", "kt", [txtNode(asClassName(type))]),
                     spNode(),
                     txtNode(result),
-                    oNode([txtNode(" =")]),
-                    txtNode(" new "),
+                    oNode(" = "),
+                    txtNode("new "),
                     aNode("span", "nc", [txtNode(asClassName(type))]),
-                    oNode([txtNode("(")]),
-                    oNode([txtNode(");")]),
+                    oNode("("),
+                    oNode(");"),
                     brNode()]);
 
                 stack.push(result);
@@ -367,7 +367,7 @@ function show_decompiled_java_method(method, tree, object, level){
             var name = object.constantPool[ref.nameAndTypeIndex - 1].name;
             var cls =  object.constantPool[ref.classIndex - 1].name;
             stack.push([txtNode(asClassName(cls)),
-                        oNode([txtNode(".")]),
+                        oNode("."),
                         txtNode(name)]);
             break;
 
@@ -375,7 +375,7 @@ function show_decompiled_java_method(method, tree, object, level){
             addNodeList(tree, [spNode((level + 1) * indentation),
                                txtNode("return "),
                                txtNode(stack.pop()),
-                               oNode([txtNode(";")]),
+                               oNode(";"),
                                brNode()]);
             break;
 
@@ -383,7 +383,7 @@ function show_decompiled_java_method(method, tree, object, level){
             addNodeList(tree, [spNode((level + 1) * indentation),
                                txtNode("throw "),
                                txtNode(stack.pop()),
-                               oNode([txtNode(";")]),
+                               oNode(";"),
                                brNode()]);
             break;
 
@@ -391,10 +391,11 @@ function show_decompiled_java_method(method, tree, object, level){
             addNodeList(tree, [spNode((level + 1) * indentation),
                                aNode("span", "k", [txtNode("if")]),
                                spNode(),
-                               oNode([txtNode("(")]),
+                               oNode("("),
                                txtNode(stack.pop()),
-                               oNode([txtNode(" == ")]),
-                               txtNode("null){"),
+                               oNode(" == "),
+                               txtNode("null"),
+                               oNode("){"),
                                brNode()]);
             level++;
             frame.push(opcode.params[0].value);
@@ -453,7 +454,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                           aNode("span", "nc", [txtNode(asClassName(this.superClass.name))]), spNode()]);
     }
 
-    addNodeList(src, [oNode([txtNode("{")]),
+    addNodeList(src, [oNode("{"),
                       brNode()]);
 
     // Field list
@@ -489,7 +490,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                 val += "f";
             }
             addNodeList(src, [spNode(),
-                              oNode([txtNode("=")]),
+                              oNode("="),
                               spNode(),
                               aNode("span", "n", [txtNode(escape(val))])]);
         }
@@ -522,7 +523,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
 
         addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(method.type))]),
                           spNode(), anchor,
-                          oNode([txtNode("(")])]);
+                          oNode("(")]);
 
         // Method parameters
         for (var j = 0; param = method.params[j]; j++){
@@ -540,8 +541,8 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
             }
         }
 
-        addNodeList(src, [oNode([txtNode(")")]), spNode(),
-                          oNode([txtNode("{")]),
+        addNodeList(src, [oNode(")"), spNode(),
+                          oNode("{"),
                           brNode()]);
 
 
@@ -557,7 +558,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                           brNode(), brNode()]);
     }
 
-    addNodeList(src, [oNode([txtNode("}")])]);
+    addNodeList(src, [oNode("}")]);
 
     return src;
 }
