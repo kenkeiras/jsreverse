@@ -215,7 +215,7 @@ function show_decompiled_java_method(method, tree, object, level){
         switch(opcode.mnemonic){
         /* Reference 0 seems to refer to the called object */
         case "aload_0":
-            stack.push("this"); /* @TODO Style */
+            stack.push(aNode("span", "n", [txtNode("this")]));
             break;
 
         /* First argument */
@@ -224,9 +224,15 @@ function show_decompiled_java_method(method, tree, object, level){
             break;
 
         case "ldc":
-            /* @TODO style */
-            stack.push(get_java_constant_comments(object.constantPool,
-                                                  opcode.params[0].value));
+            var value = get_java_constant_comments(object.constantPool,
+                                                  opcode.params[0].value);
+            if (value.startsWith('"')){
+                value = aNode("span", "s", [txtNode(value)]);
+            }
+            else if (value.isDigits()){
+                value = aNode("span", "mi", [txtNode(value)]);
+            }
+            stack.push(value);
             break;
 
         case "bipush":

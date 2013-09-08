@@ -9,6 +9,11 @@ String.prototype.startsWith = function(str){
     return (this.match("^" + str) == str);
 };
 
+/* Add a string.isDigits prototype */
+String.prototype.isDigits = function(str){
+    return (this.match(/^\d+$/) !== null);
+};
+
 /* Add a array.flatten prototype */
 Array.prototype.flatten = function(){
     var result = [];
