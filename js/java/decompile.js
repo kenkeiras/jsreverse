@@ -254,10 +254,10 @@ function show_decompiled_java_method(method, tree, object, level){
             /* @TODO Style */
             if (object_ref !== 'this'){
                 addNodeList(tree, [txtNode(object_ref),
-                                   txtNode(".")]);
+                                   oNode([txtNode(".")])]);
             }
             addNodeList(tree, [txtNode(nameAndType.name),
-                               txtNode(" = "),
+                               oNode([txtNode(" = ")]),
                                txtNode(value),
                                brNode()]);
             break;
@@ -274,13 +274,13 @@ function show_decompiled_java_method(method, tree, object, level){
 
                 /* @TODO Style */
                 addNodeList(tree, [txtNode(object_ref),
-                                   txtNode(".")]);
+                                   oNode([txtNode(".")])]);
 
                 addNodeList(tree, [spNode((level + 1) * indentation),
                                    txtNode(returned_type),
                                    spNode(),
                                    txtNode(value),
-                                   txtNode(" = ")]);
+                                   oNode([txtNode(" = ")])]);
 
 
                 addNodeList(tree, [txtNode(nameAndType.name),
@@ -294,7 +294,8 @@ function show_decompiled_java_method(method, tree, object, level){
             if (i != (method.opcodes.length - 1)){
                 /* @TODO Style */
                 addNodeList(tree, [spNode((level + 1) * indentation),
-                                   txtNode("return;"),
+                                   txtNode("return"),
+                                   oNode([txtNode(";")]),
                                    brNode()]);
             }
             break;
@@ -322,12 +323,12 @@ function show_decompiled_java_method(method, tree, object, level){
                     aNode("span", "kt", [txtNode(asClassName(returned_type))]),
                     spNode(),
                     txtNode(result),
-                    txtNode(" = ")]);
+                    oNode([txtNode(" = ")])]);
             }
 
             if (invoked_object !== "this"){
                 decompilation = [txtNode(invoked_object),
-                                 txtNode(".")].concat(decompilation);
+                                 oNode([txtNode(".")])].concat(decompilation);
             }
 
             if ((returned_type !== "void") &&
@@ -351,10 +352,11 @@ function show_decompiled_java_method(method, tree, object, level){
                     aNode("span", "kt", [txtNode(asClassName(type))]),
                     spNode(),
                     txtNode(result),
-                    txtNode(" = new "),
+                    oNode([txtNode(" =")]),
+                    txtNode(" new "),
                     aNode("span", "nc", [txtNode(asClassName(type))]),
-                    txtNode("("),
-                    txtNode(");"),
+                    oNode([txtNode("(")]),
+                    oNode([txtNode(");")]),
                     brNode()]);
 
                 stack.push(result);
@@ -365,7 +367,7 @@ function show_decompiled_java_method(method, tree, object, level){
             var name = object.constantPool[ref.nameAndTypeIndex - 1].name;
             var cls =  object.constantPool[ref.classIndex - 1].name;
             stack.push([txtNode(asClassName(cls)),
-                        txtNode("."),
+                        oNode([txtNode(".")]),
                         txtNode(name)]);
             break;
 
@@ -373,7 +375,7 @@ function show_decompiled_java_method(method, tree, object, level){
             addNodeList(tree, [spNode((level + 1) * indentation),
                                txtNode("return "),
                                txtNode(stack.pop()),
-                               txtNode(";"),
+                               oNode([txtNode(";")]),
                                brNode()]);
             break;
 
@@ -381,7 +383,7 @@ function show_decompiled_java_method(method, tree, object, level){
             addNodeList(tree, [spNode((level + 1) * indentation),
                                txtNode("throw "),
                                txtNode(stack.pop()),
-                               txtNode(";"),
+                               oNode([txtNode(";")]),
                                brNode()]);
             break;
 
@@ -391,7 +393,8 @@ function show_decompiled_java_method(method, tree, object, level){
                                spNode(),
                                oNode([txtNode("(")]),
                                txtNode(stack.pop()),
-                               txtNode(" == null){"),
+                               oNode([txtNode(" == ")]),
+                               txtNode("null){"),
                                brNode()]);
             level++;
             frame.push(opcode.params[0].value);
