@@ -259,10 +259,10 @@ function show_decompiled_java_method(method, tree, object, level){
 
             /* @TODO Style */
             if (object_ref !== 'this'){
-                addNodeList(tree, [txtNode(object_ref),
+                addNodeList(tree, [aNode("span", "n", [txtNode(object_ref)]),
                                    oNode(".")]);
             }
-            addNodeList(tree, [txtNode(nameAndType.name),
+            addNodeList(tree, [aNode("span", "na", [txtNode(nameAndType.name)]),
                                oNode(" = "),
                                txtNode(value),
                                brNode()]);
@@ -280,11 +280,10 @@ function show_decompiled_java_method(method, tree, object, level){
 
                 /* @TODO Style */
                 addNodeList(tree, [spNode((level + 1) * indentation),
-                                   txtNode(asClassName(returned_type)),
+                                   aNode("span", "kt", [txtNode(returned_type)]),
                                    spNode(),
                                    txtNode(value),
                                    oNode(" = ")]);
-
 
                 addNodeList(tree, [txtNode(object_ref),
                                    oNode("."),
@@ -372,9 +371,9 @@ function show_decompiled_java_method(method, tree, object, level){
             var ref = object.constantPool[opcode.params[0].value - 1];
             var name = object.constantPool[ref.nameAndTypeIndex - 1].name;
             var cls =  object.constantPool[ref.classIndex - 1].name;
-            stack.push([txtNode(asClassName(cls)),
+            stack.push([aNode("spNode", "n", [txtNode(asClassName(cls))]),
                         oNode("."),
-                        txtNode(name)]);
+                        aNode("spNode", "na", [txtNode(name)])]);
             break;
 
         case "areturn":
