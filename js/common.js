@@ -9,6 +9,11 @@ String.prototype.startsWith = function(str){
     return (this.match("^" + str) == str);
 };
 
+/* Add a string.isDigits prototype */
+String.prototype.isDigits = function(str){
+    return (this.match(/^\d+$/) !== null);
+};
+
 /* Add a array.flatten prototype */
 Array.prototype.flatten = function(){
     var result = [];
@@ -56,8 +61,8 @@ function aNode(nType, nClass, children){
 
 
 /**
- * Description: Creates a text node, if the entry is a list of Text nodes
- *               a returnsthe same object.
+ * Description: Creates a text node, if the entry is not a String or a Number
+ *               returns the same object.
  *
  * @param text The initial text.
  *
@@ -65,8 +70,8 @@ function aNode(nType, nClass, children){
  *
  */
 function txtNode(text){
-    if ((text.__proto__ === [].__proto__) &&
-        (text[0].__proto__ === spNode().__proto__)){
+    if ((text.__proto__ !== String.prototype) &&
+        (text.__proto__ !== Number.prototype)){
         return text;
     } else {
         return document.createTextNode(text);

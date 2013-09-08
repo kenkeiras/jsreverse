@@ -94,41 +94,7 @@ a {
 
 /* Source code style */
 .code {
-    font-family: Courier, "Courier New", monospace;
+    font-family: Bitstream Vera Sans Mono,monospace;
+    font-size: 12px;
     white-space: pre;
-}
-.cn, .fn, .scn {
-    font-weight: bold;
-    color: #7F0000;
-}
-
-.val {
-    font-style: italic;
-}
-
-.cf, .ff, .mf {
-    color: #007F00;
-}
-
-.ck, .ek {
-    color: blue;
-    font-weight: bold;
-}
-
-.mt, .ft, .pt {
-    font-weight: bold;
-    color: #00007F;
-}
-
-.cp, .op, .obk, .cbk, .ae {
-    font-weight: bold;
-}
-
-.opcode {
-    color: navy;
-}
-
-.comment_start, .comment {
-    font-style: italic;
-    color: grey;
 }

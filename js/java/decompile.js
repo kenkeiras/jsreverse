@@ -27,6 +27,11 @@ function asClassName(className){
 }
 
 
+function oNode(content){
+    return aNode("span", "o", [txtNode(content)]);
+}
+
+
 /**
  * Description: Converts a general binary representation of the access
  *   flags to a dictionary.
@@ -150,7 +155,8 @@ function decompile_call(stack, opcode, object, level){
      */
     var params = descriptor2TypeAndParams(function_info.descriptor)[1];
 
-    info = info.concat([txtNode(function_name), txtNode("(")]);
+    info = info.concat([aNode("span", "na", [txtNode(function_name)]),
+                        oNode("(")]);
     var arguments = [];
 
     for(var i = 0; i < params.length; i++){
@@ -159,14 +165,15 @@ function decompile_call(stack, opcode, object, level){
     var first = true;
     for (;arguments.length !== 0;){
         if (!first){
-            info.push(txtNode(", "));
+            info.push(oNode(", "));
         } else {
             first = false;
         }
         info.push(txtNode(arguments.pop()));
     }
 
-    info = info.concat([txtNode(")"), txtNode(";")]);
+    info = info.concat([oNode(")"),
+                        oNode(";")]);
 
     return info;
 }
@@ -201,7 +208,7 @@ function show_decompiled_java_method(method, tree, object, level){
             frame.pop();
             level--;
             addNodeList(tree, [spNode((level + 1) * indentation),
-                               txtNode("}"),
+                               oNode("}"),
                                brNode()]);
         }
 
@@ -213,12 +220,19 @@ function show_decompiled_java_method(method, tree, object, level){
 
         /* First argument */
         case "aload_1":
-            stack.push(assign_param_name(method, 1));
+            stack.push(assign_param_name(method, 1)); /* @TODO Style */
             break;
 
         case "ldc":
-            stack.push(get_java_constant_comments(object.constantPool,
-                                                  opcode.params[0].value));
+            var value = get_java_constant_comments(object.constantPool,
+                                                  opcode.params[0].value);
+            if (value.startsWith('"')){
+                value = aNode("span", "s", [txtNode(value)]);
+            }
+            else if (value.isDigits()){
+                value = aNode("span", "mi", [txtNode(value)]);
+            }
+            stack.push(value);
             break;
 
         case "bipush":
@@ -231,7 +245,7 @@ function show_decompiled_java_method(method, tree, object, level){
                 }
             }
             if (value !== undefined){
-                stack.push(value);
+                stack.push(aNode("span", "mi", [txtNode(value)]));
             }
             break;
 
@@ -243,12 +257,13 @@ function show_decompiled_java_method(method, tree, object, level){
 
             addNodeList(tree, [spNode((level + 1) * indentation)]);
 
+            /* @TODO Style */
             if (object_ref !== 'this'){
-                addNodeList(tree, [txtNode(object_ref),
-                                   txtNode(".")]);
+                addNodeList(tree, [aNode("span", "n", [txtNode(object_ref)]),
+                                   oNode(".")]);
             }
-            addNodeList(tree, [txtNode(nameAndType.name),
-                               txtNode(" = "),
+            addNodeList(tree, [aNode("span", "na", [txtNode(nameAndType.name)]),
+                               oNode(" = "),
                                txtNode(value),
                                brNode()]);
             break;
@@ -263,17 +278,17 @@ function show_decompiled_java_method(method, tree, object, level){
                 var value = assign_variable_name(method, i, object, returned_type);
                 stack.push(value);
 
-                addNodeList(tree, [txtNode(object_ref),
-                                   txtNode(".")]);
-
+                /* @TODO Style */
                 addNodeList(tree, [spNode((level + 1) * indentation),
-                                   txtNode(returned_type),
+                                   aNode("span", "kt", [txtNode(returned_type)]),
                                    spNode(),
                                    txtNode(value),
-                                   txtNode(" = ")]);
+                                   oNode(" = ")]);
 
-
-                addNodeList(tree, [txtNode(nameAndType.name),
+                addNodeList(tree, [txtNode(object_ref),
+                                   oNode("."),
+                                   txtNode(nameAndType.name),
+                                   oNode(";"),
                                    brNode()]);
             } else {
                 stack.push(nameAndType.name);
@@ -282,8 +297,10 @@ function show_decompiled_java_method(method, tree, object, level){
 
         case "return":
             if (i != (method.opcodes.length - 1)){
+                /* @TODO Style */
                 addNodeList(tree, [spNode((level + 1) * indentation),
-                                   txtNode("return;"),
+                                   aNode("span", "k", [txtNode("return")]),
+                                   oNode(";"),
                                    brNode()]);
             }
             break;
@@ -308,15 +325,15 @@ function show_decompiled_java_method(method, tree, object, level){
 
                 var result = assign_variable_name(method, i, object, returned_type);
                 assignation = assignation.concat([
-                    aNode("span", "pt", [txtNode(asClassName(returned_type))]),
+                    aNode("span", "kt", [txtNode(asClassName(returned_type))]),
                     spNode(),
                     txtNode(result),
-                    txtNode(" = ")]);
+                    oNode(" = ")]);
             }
 
             if (invoked_object !== "this"){
                 decompilation = [txtNode(invoked_object),
-                                 txtNode(".")].concat(decompilation);
+                                 oNode(".")].concat(decompilation);
             }
 
             if ((returned_type !== "void") &&
@@ -337,13 +354,14 @@ function show_decompiled_java_method(method, tree, object, level){
                 var result = assign_variable_name(method, i, object, type);
                 addNodeList(tree, [
                     spNode((level + 1) * indentation),
-                    aNode("span", "pt", [txtNode(asClassName(type))]),
+                    aNode("span", "kt", [txtNode(asClassName(type))]),
                     spNode(),
                     txtNode(result),
-                    txtNode(" = new "),
-                    txtNode(asClassName(type)),
-                    txtNode("("),
-                    txtNode(");"),
+                    oNode(" = "),
+                    aNode("span", "k", [txtNode("new ")]),
+                    aNode("span", "nc", [txtNode(asClassName(type))]),
+                    oNode("("),
+                    oNode(");"),
                     brNode()]);
 
                 stack.push(result);
@@ -353,32 +371,36 @@ function show_decompiled_java_method(method, tree, object, level){
             var ref = object.constantPool[opcode.params[0].value - 1];
             var name = object.constantPool[ref.nameAndTypeIndex - 1].name;
             var cls =  object.constantPool[ref.classIndex - 1].name;
-            stack.push([txtNode(asClassName(cls)),
-                        txtNode("."),
-                        txtNode(name)]);
+            stack.push([aNode("spNode", "n", [txtNode(asClassName(cls))]),
+                        oNode("."),
+                        aNode("spNode", "na", [txtNode(name)])]);
             break;
 
         case "areturn":
             addNodeList(tree, [spNode((level + 1) * indentation),
-                               txtNode("return "),
+                               aNode("span", "k", [txtNode("return ")]),
                                txtNode(stack.pop()),
-                               txtNode(";"),
+                               oNode(";"),
                                brNode()]);
             break;
 
         case "athrow":
             addNodeList(tree, [spNode((level + 1) * indentation),
-                               txtNode("throw "),
+                               aNode("span", "k", [txtNode("throw ")]),
                                txtNode(stack.pop()),
-                               txtNode(";"),
+                               oNode(";"),
                                brNode()]);
             break;
 
         case "ifnonnull":
             addNodeList(tree, [spNode((level + 1) * indentation),
-                               txtNode("if ("),
+                               aNode("span", "k", [txtNode("if")]),
+                               spNode(),
+                               oNode("("),
                                txtNode(stack.pop()),
-                               txtNode(" == null){"),
+                               oNode(" == "),
+                               aNode("span", "kc", [txtNode("null")]),
+                               oNode("){"),
                                brNode()]);
             level++;
             frame.push(opcode.params[0].value);
@@ -422,22 +444,22 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
     for (i = 0; flag = possibleClassFlags[i]; i++){
 
         if (this.flags[flag]){
-            addNodeList(src, [aNode("span", "cf", [txtNode(flag)]), spNode()]);
+            addNodeList(src, [aNode("span", "k", [txtNode(flag)]), spNode()]);
         }
     }
 
     // class name and superclass
-    addNodeList(src, [aNode("span", "ck", [txtNode("class")]),
+    addNodeList(src, [aNode("span", "k", [txtNode("class")]),
                       spNode(),
-                      aNode("span", "cn", [txtNode(asClassName(this.name))]),
+                      aNode("span", "nc", [txtNode(asClassName(this.name))]),
                       spNode()]);
 
     if (this.superClass.name != 'java/lang/Object'){
-        addNodeList(src, [aNode("span", "ek", [txtNode("extends")]), spNode(),
-                          aNode("span", "scn", [txtNode(asClassName(this.superClass.name))]), spNode()]);
+        addNodeList(src, [aNode("span", "k", [txtNode("extends")]), spNode(),
+                          aNode("span", "nc", [txtNode(asClassName(this.superClass.name))]), spNode()]);
     }
 
-    addNodeList(src, [aNode("span", "obk", [txtNode("{")]),
+    addNodeList(src, [oNode("{"),
                       brNode()]);
 
     // Field list
@@ -451,14 +473,14 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
         addNodeList(src, [spNode(indentation)]);
         for (j = 0; flag = possibleFieldFlags[j]; j++){
             if (field.flags[flag]){
-                addNodeList(src, [aNode("span", "ff", [txtNode(escape(flag))]),
+                addNodeList(src, [aNode("span", "k", [txtNode(escape(flag))]),
                                   spNode()]);
             }
         }
 
-        addNodeList(src, [aNode("span", "ft", [txtNode(asClassName(field.type))]),
+        addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(field.type))]),
                           spNode(),
-                          aNode("span", "fn", [txtNode(escape(field.name))])]);
+                          aNode("span", "nv", [txtNode(escape(field.name))])]);
 
         var ind = Number(field.attributes["ConstantValue"]);
         var val = undefined;
@@ -473,12 +495,12 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                 val += "f";
             }
             addNodeList(src, [spNode(),
-                              aNode("span", "ae", [txtNode("=")]),
+                              oNode("="),
                               spNode(),
-                              aNode("span", "val", [txtNode(escape(val))])]);
+                              aNode("span", "n", [txtNode(escape(val))])]);
         }
 
-        addNodeList(src, [txtNode(";"), brNode()]);
+        addNodeList(src, [oNode(";"), brNode()]);
     }
     addNodeList(src, [brNode()]);
 
@@ -491,22 +513,22 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
             continue;
         }
 
-        var anchor = aNode("a", "mn", [txtNode(asClassName(method.name))]);
+        var anchor = aNode("a", "nf", [txtNode(asClassName(method.name))]);
         anchor.setAttribute("name", "__" + asClassName(this.name) + "__" +
                             escape(method.name));
 
         addNodeList(src, [spNode(indentation)]);
         for (j = 0; flag = possibleMethodFlags[j]; j++){
             if (method.flags[flag]){
-                addNodeList(src, [aNode("span", "mf", [txtNode(escape(flag))]),
+                addNodeList(src, [aNode("span", "k", [txtNode(escape(flag))]),
                                   spNode()]);
             }
         }
 
 
-        addNodeList(src, [aNode("span", "mt", [txtNode(asClassName(method.type))]),
-                          txtNode(" "), anchor,
-                          aNode("span", "op", [txtNode("(")])]);
+        addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(method.type))]),
+                          spNode(), anchor,
+                          oNode("(")]);
 
         // Method parameters
         for (var j = 0; param = method.params[j]; j++){
@@ -514,7 +536,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                 addNodeList(src, [txtNode(", ")]);
             }
 
-            addNodeList(src, [aNode("span", "pt", [txtNode(asClassName(param))])]);
+            addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(param))])]);
 
             // Give the parameter a name
             if (!(prefer_bytecode || method.name.startsWith("<"))){
@@ -524,8 +546,8 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
             }
         }
 
-        addNodeList(src, [aNode("span", "cp", [txtNode(")")]), spNode(),
-                          aNode("span", "obk", [txtNode("{")]),
+        addNodeList(src, [oNode(")"), spNode(),
+                          oNode("{"),
                           brNode()]);
 
 
@@ -537,11 +559,11 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
         }
 
         addNodeList(src, [spNode(indentation),
-                          aNode("span", "cbk", [txtNode("}")]),
+                          oNode("}"),
                           brNode(), brNode()]);
     }
 
-    addNodeList(src, [aNode("span", "cbk", [txtNode("}")])]);
+    addNodeList(src, [oNode("}")]);
 
     return src;
 }

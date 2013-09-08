@@ -181,15 +181,15 @@ function show_disassembled_java_opcode(opcode, tree){
 
     var param;
     for (var i = 0; (param = opcode.params[i]) !== undefined; i++){
-        addNodeList(tree, [aNode("span", "val", [txtNode(param.value)]), spNode()]);
+        addNodeList(tree, [aNode("span", "n", [txtNode(param.value)]), spNode()]);
     }
 
     if (opcode.comments.length > 0){
-        addNodeList(tree, [spNode(), aNode("span", "comment_start", [txtNode("// ")])]);
+        addNodeList(tree, [spNode(), aNode("span", "c", [txtNode("// ")])]);
 
         var comment;
         for (var i = 0; (comment = opcode.comments[i]) !== undefined; i++){
-            addNodeList(tree, [spNode(), aNode("span", "comment", [txtNode(comment)])]);
+            addNodeList(tree, [spNode(), aNode("span", "c", [txtNode(comment)])]);
         }
     }
     addNodeList(tree, [brNode()]);
