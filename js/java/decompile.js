@@ -27,6 +27,11 @@ function asClassName(className){
 }
 
 
+function oNode(content){
+    return aNode("span", "o", content);
+}
+
+
 /**
  * Description: Converts a general binary representation of the access
  *   flags to a dictionary.
@@ -150,8 +155,8 @@ function decompile_call(stack, opcode, object, level){
      */
     var params = descriptor2TypeAndParams(function_info.descriptor)[1];
 
-    info = info.concat([aNode("span", "n", [txtNode(function_name)]),
-                        aNode("span", "o", [txtNode("(")])]);
+    info = info.concat([oNode([txtNode(function_name)]),
+                        oNode([txtNode("(")])]);
     var arguments = [];
 
     for(var i = 0; i < params.length; i++){
@@ -160,15 +165,15 @@ function decompile_call(stack, opcode, object, level){
     var first = true;
     for (;arguments.length !== 0;){
         if (!first){
-            info.push(aNode("span", "o", [txtNode(", ")]));
+            info.push(oNode([txtNode(", ")]));
         } else {
             first = false;
         }
         info.push(txtNode(arguments.pop()));
     }
 
-    info = info.concat([aNode("span", "o", [txtNode(")")]),
-                        aNode("span", "o", [txtNode(";")])]);
+    info = info.concat([oNode([txtNode(")")]),
+                        oNode([txtNode(";")])]);
 
     return info;
 }
@@ -203,7 +208,7 @@ function show_decompiled_java_method(method, tree, object, level){
             frame.pop();
             level--;
             addNodeList(tree, [spNode((level + 1) * indentation),
-                               aNode("span", "o", [txtNode("}")]),
+                               oNode([txtNode("}")]),
                                brNode()]);
         }
 
@@ -384,7 +389,7 @@ function show_decompiled_java_method(method, tree, object, level){
             addNodeList(tree, [spNode((level + 1) * indentation),
                                aNode("span", "k", [txtNode("if")]),
                                spNode(),
-                               aNode("span", "o", [txtNode("(")]),
+                               oNode([txtNode("(")]),
                                txtNode(stack.pop()),
                                txtNode(" == null){"),
                                brNode()]);
@@ -445,7 +450,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                           aNode("span", "nc", [txtNode(asClassName(this.superClass.name))]), spNode()]);
     }
 
-    addNodeList(src, [aNode("span", "o", [txtNode("{")]),
+    addNodeList(src, [oNode([txtNode("{")]),
                       brNode()]);
 
     // Field list
@@ -481,7 +486,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
                 val += "f";
             }
             addNodeList(src, [spNode(),
-                              aNode("span", "o", [txtNode("=")]),
+                              oNode([txtNode("=")]),
                               spNode(),
                               aNode("span", "n", [txtNode(escape(val))])]);
         }
@@ -514,7 +519,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
 
         addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(method.type))]),
                           spNode(), anchor,
-                          aNode("span", "o", [txtNode("(")])]);
+                          oNode([txtNode("(")])]);
 
         // Method parameters
         for (var j = 0; param = method.params[j]; j++){
@@ -532,8 +537,8 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
             }
         }
 
-        addNodeList(src, [aNode("span", "o", [txtNode(")")]), spNode(),
-                          aNode("span", "o", [txtNode("{")]),
+        addNodeList(src, [oNode([txtNode(")")]), spNode(),
+                          oNode([txtNode("{")]),
                           brNode()]);
 
 
@@ -545,11 +550,11 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
         }
 
         addNodeList(src, [spNode(indentation),
-                          aNode("span", "o", [txtNode("}")]),
+                          oNode([txtNode("}")]),
                           brNode(), brNode()]);
     }
 
-    addNodeList(src, [aNode("span", "o", [txtNode("}")])]);
+    addNodeList(src, [oNode([txtNode("}")])]);
 
     return src;
 }
