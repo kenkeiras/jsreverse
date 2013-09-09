@@ -273,6 +273,14 @@ function show_decompiled_java_method(method, tree, object, level){
                          brNode()]);
             break;
 
+        case "iload_0":
+        case "iload_1":
+        case "iload_2":
+        case "iload_3":
+            stack.push(
+                assign_local_variable(method, opcode.mnemonic.slice(-1)));
+            break;
+
 
         case "bipush":
         case "sipush":
