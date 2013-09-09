@@ -453,6 +453,35 @@ function show_decompiled_java_method(method, tree, object, level){
             frame.push(opcode.params[0].value);
             break;
 
+        case "if_icmpeq":
+        case "if_icmpne":
+        case "if_icmplt":
+        case "if_icmpge":
+        case "if_icmpgt":
+        case "if_icmple":
+            var condition = undefined;
+            switch(opcode.mnemonic.slice(-2)){
+            case "eq": condition = "!="; break;
+            case "ne": condition = "=="; break;
+            case "lt": condition = ">="; break;
+            case "ge": condition = "<";  break;
+            case "gt": condition = "<="; break;
+            case "le": condition = ">";  break;
+            }
+            var reference = stack.pop();
+            addNodeList(tree, [indent(level),
+                               aNode("span", "k", [txtNode("if")]),
+                               spNode(),
+                               oNode("("),
+                               txtNode(stack.pop()),
+                               oNode(" " + condition + " "),
+                               txtNode(reference),
+                               oNode("){"),
+                               brNode()]);
+            level++;
+            frame.push(opcode.params[0].value);
+            break;
+
         default:
             addNodeList(tree, [indent(level),
                                txtNode("// ")]);
