@@ -235,6 +235,19 @@ function show_decompiled_java_method(method, tree, object, level){
             stack.push(value);
             break;
 
+        case "iconst_m1":
+            stack.push(aNode("span", "mi", [txtNode("-1")]));
+            break;
+
+        case "iconst_0":
+        case "iconst_1":
+        case "iconst_2":
+        case "iconst_3":
+        case "iconst_4":
+        case "iconst_5":
+            stack.push(aNode("span", "mi", [txtNode(opcode.mnemonic.slice(-1))]));
+            break;
+
         case "bipush":
         case "sipush":
             var value;
