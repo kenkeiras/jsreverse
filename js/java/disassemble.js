@@ -33,6 +33,9 @@ function get_java_constant_comments(constants, value){
     case 'string':
         return '"' + c.string + '"';
 
+    case 'utf8':
+        return '"' + c.bytes + '"';
+
     case 'class':
         return asClassName(c.name);
 
