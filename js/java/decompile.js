@@ -188,6 +188,13 @@ function assign_variable_name(method, id, object, type){
     return method.variable_names[id];
 }
 
+function assign_local_variable(method, index, type){
+    if (method.local_vars[index] === undefined){
+        method.local_vars[index] = "variable_" + index;
+    }
+    return method.local_vars[index];
+}
+
 function assign_param_name(method, index, type){
     if (method.param_names[index] === undefined){
         method.param_names[index] = type.toLowerCase().replace(/^([^/]+\/)*/, "").
@@ -247,6 +254,21 @@ function show_decompiled_java_method(method, tree, object, level){
         case "iconst_5":
             stack.push(aNode("span", "mi", [txtNode(opcode.mnemonic.slice(-1))]));
             break;
+
+        case "istore_0":
+        case "istore_1":
+        case "istore_2":
+        case "istore_3":
+            addNodeList(tree,
+                        [spNode((level + 1) * indentation),
+                         aNode("span", "n", [txtNode(
+                            assign_local_variable(method,
+                                                  opcode.mnemonic.slice(-1)))]),
+                         oNode(" = "),
+                         stack.pop(),
+                         brNode()]);
+            break;
+
 
         case "bipush":
         case "sipush":
