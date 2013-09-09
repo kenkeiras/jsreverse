@@ -148,7 +148,7 @@ var OPCODES = {
     0x81: ["lor", [], ["value1", "value2"], ["result"]],
     0x82: ["ixor", [], ["value1", "value2"], ["result"]],
     0x83: ["lxor", [], ["value1", "value2"], ["result"]],
-    0x84: ["iinc", ["int", "const"], [], []],
+    0x84: ["iinc", ["byte", "const"], [], []],
 
     // Conversions
     0x85: ["i2l", [], ["value"], ["result"]],
