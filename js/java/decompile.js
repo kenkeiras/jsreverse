@@ -32,6 +32,10 @@ function oNode(content){
 }
 
 
+function indent(level){
+    return spNode((level + 1) * indentation);
+}
+
 /**
  * Description: Converts a general binary representation of the access
  *   flags to a dictionary.
@@ -188,6 +192,13 @@ function assign_variable_name(method, id, object, type){
     return method.variable_names[id];
 }
 
+function assign_local_variable(method, index, type){
+    if (method.local_vars[index] === undefined){
+        method.local_vars[index] = "variable_" + index;
+    }
+    return method.local_vars[index];
+}
+
 function assign_param_name(method, index, type){
     if (method.param_names[index] === undefined){
         method.param_names[index] = type.toLowerCase().replace(/^([^/]+\/)*/, "").
@@ -207,7 +218,7 @@ function show_decompiled_java_method(method, tree, object, level){
         while ((frame.length > 0) && (frame[frame.length - 1] <= opcode.position)){
             frame.pop();
             level--;
-            addNodeList(tree, [spNode((level + 1) * indentation),
+            addNodeList(tree, [indent(level),
                                oNode("}"),
                                brNode()]);
         }
@@ -235,6 +246,42 @@ function show_decompiled_java_method(method, tree, object, level){
             stack.push(value);
             break;
 
+        case "iconst_m1":
+            stack.push(aNode("span", "mi", [txtNode("-1")]));
+            break;
+
+        case "iconst_0":
+        case "iconst_1":
+        case "iconst_2":
+        case "iconst_3":
+        case "iconst_4":
+        case "iconst_5":
+            stack.push(aNode("span", "mi", [txtNode(opcode.mnemonic.slice(-1))]));
+            break;
+
+        case "istore_0":
+        case "istore_1":
+        case "istore_2":
+        case "istore_3":
+            addNodeList(tree,
+                        [indent(level),
+                         aNode("span", "n", [txtNode(
+                            assign_local_variable(method,
+                                                  opcode.mnemonic.slice(-1)))]),
+                         oNode(" = "),
+                         stack.pop(),
+                         brNode()]);
+            break;
+
+        case "iload_0":
+        case "iload_1":
+        case "iload_2":
+        case "iload_3":
+            stack.push(
+                assign_local_variable(method, opcode.mnemonic.slice(-1)));
+            break;
+
+
         case "bipush":
         case "sipush":
             var value;
@@ -255,7 +302,7 @@ function show_decompiled_java_method(method, tree, object, level){
             var field = object.constantPool[opcode.params[0].value - 1];
             var nameAndType = object.constantPool[field.nameAndTypeIndex - 1];
 
-            addNodeList(tree, [spNode((level + 1) * indentation)]);
+            addNodeList(tree, [indent(level)]);
 
             /* @TODO Style */
             if (object_ref !== 'this'){
@@ -279,7 +326,7 @@ function show_decompiled_java_method(method, tree, object, level){
                 stack.push(value);
 
                 /* @TODO Style */
-                addNodeList(tree, [spNode((level + 1) * indentation),
+                addNodeList(tree, [indent(level),
                                    aNode("span", "kt", [txtNode(returned_type)]),
                                    spNode(),
                                    txtNode(value),
@@ -298,7 +345,7 @@ function show_decompiled_java_method(method, tree, object, level){
         case "return":
             if (i != (method.opcodes.length - 1)){
                 /* @TODO Style */
-                addNodeList(tree, [spNode((level + 1) * indentation),
+                addNodeList(tree, [indent(level),
                                    aNode("span", "k", [txtNode("return")]),
                                    oNode(";"),
                                    brNode()]);
@@ -319,7 +366,7 @@ function show_decompiled_java_method(method, tree, object, level){
 
             var decompilation = dec_call;
             var returned_type = get_call_type_and_params(opcode, object)[0];
-            var assignation = [spNode((level + 1) * indentation)];
+            var assignation = [indent(level)];
 
             if (returned_type !== "void"){
 
@@ -353,7 +400,7 @@ function show_decompiled_java_method(method, tree, object, level){
             var type = object.constantPool[opcode.params[0].value - 1].name;
                 var result = assign_variable_name(method, i, object, type);
                 addNodeList(tree, [
-                    spNode((level + 1) * indentation),
+                    indent(level),
                     aNode("span", "kt", [txtNode(asClassName(type))]),
                     spNode(),
                     txtNode(result),
@@ -377,7 +424,7 @@ function show_decompiled_java_method(method, tree, object, level){
             break;
 
         case "areturn":
-            addNodeList(tree, [spNode((level + 1) * indentation),
+            addNodeList(tree, [indent(level),
                                aNode("span", "k", [txtNode("return ")]),
                                txtNode(stack.pop()),
                                oNode(";"),
@@ -385,7 +432,7 @@ function show_decompiled_java_method(method, tree, object, level){
             break;
 
         case "athrow":
-            addNodeList(tree, [spNode((level + 1) * indentation),
+            addNodeList(tree, [indent(level),
                                aNode("span", "k", [txtNode("throw ")]),
                                txtNode(stack.pop()),
                                oNode(";"),
@@ -393,7 +440,7 @@ function show_decompiled_java_method(method, tree, object, level){
             break;
 
         case "ifnonnull":
-            addNodeList(tree, [spNode((level + 1) * indentation),
+            addNodeList(tree, [indent(level),
                                aNode("span", "k", [txtNode("if")]),
                                spNode(),
                                oNode("("),
@@ -406,8 +453,37 @@ function show_decompiled_java_method(method, tree, object, level){
             frame.push(opcode.params[0].value);
             break;
 
+        case "if_icmpeq":
+        case "if_icmpne":
+        case "if_icmplt":
+        case "if_icmpge":
+        case "if_icmpgt":
+        case "if_icmple":
+            var condition = undefined;
+            switch(opcode.mnemonic.slice(-2)){
+            case "eq": condition = "!="; break;
+            case "ne": condition = "=="; break;
+            case "lt": condition = ">="; break;
+            case "ge": condition = "<";  break;
+            case "gt": condition = "<="; break;
+            case "le": condition = ">";  break;
+            }
+            var reference = stack.pop();
+            addNodeList(tree, [indent(level),
+                               aNode("span", "k", [txtNode("if")]),
+                               spNode(),
+                               oNode("("),
+                               txtNode(stack.pop()),
+                               oNode(" " + condition + " "),
+                               txtNode(reference),
+                               oNode("){"),
+                               brNode()]);
+            level++;
+            frame.push(opcode.params[0].value);
+            break;
+
         default:
-            addNodeList(tree, [spNode((level + 1) * indentation),
+            addNodeList(tree, [indent(level),
                                txtNode("// ")]);
             show_disassembled_java_opcode(opcode, tree);
         }
@@ -470,7 +546,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
             continue;
         }
 
-        addNodeList(src, [spNode(indentation)]);
+        addNodeList(src, [indent(0)]);
         for (j = 0; flag = possibleFieldFlags[j]; j++){
             if (field.flags[flag]){
                 addNodeList(src, [aNode("span", "k", [txtNode(escape(flag))]),
@@ -517,7 +593,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
         anchor.setAttribute("name", "__" + asClassName(this.name) + "__" +
                             escape(method.name));
 
-        addNodeList(src, [spNode(indentation)]);
+        addNodeList(src, [indent(0)]);
         for (j = 0; flag = possibleMethodFlags[j]; j++){
             if (method.flags[flag]){
                 addNodeList(src, [aNode("span", "k", [txtNode(escape(flag))]),
@@ -558,7 +634,7 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
             show_decompiled_java_method(method, src, this, 1);
         }
 
-        addNodeList(src, [spNode(indentation),
+        addNodeList(src, [indent(0),
                           oNode("}"),
                           brNode(), brNode()]);
     }

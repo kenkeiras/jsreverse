@@ -33,6 +33,9 @@ function get_java_constant_comments(constants, value){
     case 'string':
         return '"' + c.string + '"';
 
+    case 'utf8':
+        return '"' + c.bytes + '"';
+
     case 'class':
         return asClassName(c.name);
 
@@ -122,7 +125,9 @@ function disassemble_java_opcode(f, constantPool){
 
     if (bytes !== undefined){
         if (branch){ bytes++; }
-        if (info[0].indexOf('push') === -1){
+        if ((info[0].indexOf('push') === -1) && (info[0] !== 'goto')
+            && (info[0].match(/^if/) === undefined)){
+
             comment = get_java_constant_comments(constantPool, bytes);
             if(comment !== undefined){comments.push(comment)};
         }

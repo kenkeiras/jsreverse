@@ -60,7 +60,8 @@ function readMethod(file, constantPool){
         params: params,
         attributes: attributes,
         param_names: {},
-        variable_names: {}
+        variable_names: {},
+        local_vars: {} // Explicit variables
     };
 }
 
