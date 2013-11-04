@@ -107,8 +107,19 @@ function show_op(editor, op, indentation, lastOp){
         break;
 
 
+    case 'call':
+        addNodeList(editor, [spNode(indentation)]);
+        if (op.rvalue_obj){
+            addNodeList(editor, [txtNode(op.rvalue_obj), oNode(".")]);
+        }
+
+        show_rvalue(editor, op.rvalue);
+        addNodeList(editor, [oNode(";"), brNode()]);
+        break;
+
+
     default:
-        console.log(op);
+        console.log("--->", op);
     }
 }
 
