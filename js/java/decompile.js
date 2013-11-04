@@ -351,6 +351,10 @@ function show_decompiled_java_method(method, object, level){
                 if (op.lvalue !== undefined){
                     ops.push(op);
                 }
+                else {
+                    op.operation = 'call';
+                    ops.push(op);
+                }
             }
             break;
 
