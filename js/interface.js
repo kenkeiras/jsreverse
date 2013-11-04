@@ -22,7 +22,17 @@ function call_object_to_html(call_o){
 }
 
 
-function show_op(editor, op, indentation){
+function show_rvalue(editor, rvalue){
+    if (rvalue.name !== undefined){
+        addNodeList(editor, call_object_to_html(rvalue));
+    }
+    else {
+        addNodeList(editor, [txtNode(rvalue)]);
+    }
+}
+
+
+function show_op(editor, op, indentation, lastOp){
     switch(op.operation){
     case 'assignation':
         addNodeList(editor, [spNode(indentation)]);
@@ -40,21 +50,76 @@ function show_op(editor, op, indentation){
         addNodeList(editor, [txtNode(op.lvalue),
                              oNode(" = ")]);
 
+        if (op.new){
+            addNodeList(editor, [aNode("span", "k", [txtNode("new ")])]);
+        }
+        else if (op.rvalue_obj){
+            addNodeList(editor, [txtNode(op.rvalue_obj), oNode(".")]);
+        }
+
+        show_rvalue(editor, op.rvalue);
+        addNodeList(editor, [oNode(";"), brNode()]);
+
+        break;
+
+    case 'return':
+        addNodeList(editor, [spNode(indentation)]);
+        if ((op.value !== undefined) || (!lastOp)){
+            addNodeList(editor, [aNode("span", "k", [txtNode("return ")])]);
+
+            if (op.value !== undefined){
+                show_rvalue(editor, op.value);
+            }
+
+            addNodeList(editor, [oNode(";"), brNode()]);
+        }
+        break;
+
+    case 'throw':
+        addNodeList(editor, [spNode(indentation),
+                             aNode("span", "k", [txtNode("throw ")]),
+                             txtNode(op.value),
+                             oNode(";"),
+                             brNode()]);
+        break;
+
+    case 'if':
+        addNodeList(editor, [spNode(indentation),
+                             aNode("span", "k", [txtNode("if ")]),
+                             oNode("("),
+                             txtNode(op.comparison_left),
+                             spNode(),
+                             oNode(op.comparison),
+                             spNode(),
+                             txtNode(op.comparison_right),
+                             oNode("){"),
+                             brNode()]);
+
+        var subop;
+        for (var j = 0; subop = op.block.ops[j]; j++){
+            show_op(editor, subop, indentation + 4,
+                    lastOp && ((j + 1) == op.block.length));
+        }
+
+        addNodeList(editor, [spNode(indentation),
+                             oNode("}"),
+                             brNode()]);
+        break;
+
+
+    case 'call':
+        addNodeList(editor, [spNode(indentation)]);
         if (op.rvalue_obj){
             addNodeList(editor, [txtNode(op.rvalue_obj), oNode(".")]);
         }
 
-        if (op.rvalue.name !== undefined){
-            addNodeList(editor, call_object_to_html(op.rvalue));
-        }
-        else {
-            addNodeList(editor, [txtNode(op.rvalue)]);
-        }
+        show_rvalue(editor, op.rvalue);
         addNodeList(editor, [oNode(";"), brNode()]);
-
         break;
+
+
     default:
-        console.log(op);
+        console.log("--->", op);
     }
 }
 
@@ -66,7 +131,7 @@ function show_method_ops(editor, method){
     var i;
     var op;
     for (i = 0; op = method.code[i]; i++){
-        show_op(editor, op, indentation);
+        show_op(editor, op, indentation, i + 1 == method.code.length);
     }
 }
 
