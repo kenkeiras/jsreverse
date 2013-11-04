@@ -74,6 +74,16 @@ function show_op(editor, op, indentation, lastOp){
             addNodeList(editor, [oNode(";"), brNode()]);
         }
         break;
+
+    case 'throw':
+        addNodeList(editor, [spNode(indentation),
+                             aNode("span", "k", [txtNode("throw ")]),
+                             txtNode(op.value),
+                             oNode(";"),
+                             brNode()]);
+        break;
+
+
     default:
         console.log(op);
     }
