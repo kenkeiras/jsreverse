@@ -353,11 +353,13 @@ function show_decompiled_java_method(method, object, level){
         case "new":
             var type = object.constantPool[opcode.params[0].value - 1].name;
             var result = assign_variable_name(method, i, object, type);
-            op.operation = 'new';
+            op.operation = 'assignation';
+            op.new = true;
             op.lvalue_type = asClassName(type);
             op.lvalue = result;
-            op.rvalue = asClassName(type);
-            op.params = []; /// @TODO params
+            /// @TODO params
+            op.rvalue = {name: asClassName(type),
+                         arguments: []};
             ops.push(op);
 
             stack.push(result);
