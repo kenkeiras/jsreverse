@@ -181,30 +181,33 @@ function disassemble_java_bytecode(method, constantPool){
 }
 
 
-function show_disassembled_java_opcode(opcode, tree){
-    addNodeList(tree, [spNode(8), aNode("span", "opcode", [txtNode(opcode.mnemonic)]), spNode()]);
+function show_disassembled_java_opcode(opcode){
 
+    var data = {mnemonic: {str: opcode.mnemonic},
+                params: [],
+                comments: []
+               };
+
+    var i;
     var param;
-    for (var i = 0; (param = opcode.params[i]) !== undefined; i++){
-        addNodeList(tree, [aNode("span", "n", [txtNode(param.value)]), spNode()]);
+    for (i = 0; (param = opcode.params[i]) !== undefined; i++){
+        data.params.push(param.value);
     }
 
-    if (opcode.comments.length > 0){
-        addNodeList(tree, [spNode(), aNode("span", "c", [txtNode("// ")])]);
-
-        var comment;
-        for (var i = 0; (comment = opcode.comments[i]) !== undefined; i++){
-            addNodeList(tree, [spNode(), aNode("span", "c", [txtNode(comment)])]);
-        }
+    var comment;
+    for (i = 0; (comment = opcode.comments[i]) !== undefined; i++){
+        data.comments.push(comment);
     }
-    addNodeList(tree, [brNode()]);
 
+    return data;
 }
 
 
-function show_disassembled_java_bytecode(method, tree, constantPool){
+function show_disassembled_java_bytecode(method, constantPool){
     var opcode;
+    var bytecode = [];
     for (var i = 0; (opcode = method.opcodes[i]) !== undefined; i++){
-        show_disassembled_java_opcode(opcode, tree);
+        bytecode.push(show_disassembled_java_opcode(opcode));
     }
+    return bytecode;
 }

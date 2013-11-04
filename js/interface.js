@@ -6,6 +6,167 @@
 
 var currentFile;
 
+
+function call_object_to_html(call_o){
+    var html = [aNode("span", "na", [txtNode(call_o.name)]), oNode("(")];
+    var arg;
+    for (var i = 0; arg = call_o.arguments[i]; i++){
+        if (i != 0){
+            html.push(oNode(", "));
+        }
+        html.push(txtNode(arg));
+    }
+    html.push(oNode(")"));
+
+    return html;
+}
+
+
+function show_op(editor, op, indentation){
+    switch(op.operation){
+    case 'assignation':
+        addNodeList(editor, [spNode(indentation)]);
+
+        if (op.lvalue_type){
+            addNodeList(editor, [aNode("span", "kt",
+                                       [txtNode(asClassName(op.lvalue_type))]),
+                                 spNode()]);
+        }
+
+        if (op.lvalue_obj){
+            addNodeList(editor, [txtNode(op.lvalue_obj), oNode(".")]);
+        }
+
+        addNodeList(editor, [txtNode(op.lvalue),
+                             oNode(" = ")]);
+
+        if (op.rvalue_obj){
+            addNodeList(editor, [txtNode(op.rvalue_obj), oNode(".")]);
+        }
+
+        if (op.rvalue.name !== undefined){
+            addNodeList(editor, call_object_to_html(op.rvalue));
+        }
+        else {
+            addNodeList(editor, [txtNode(op.rvalue)]);
+        }
+        addNodeList(editor, [oNode(";"), brNode()]);
+
+        break;
+    default:
+        console.log(op);
+    }
+}
+
+
+function show_method_ops(editor, method){
+    console.log(method);
+
+    var indentation = 8;
+    var i;
+    var op;
+    for (i = 0; op = method.code[i]; i++){
+        show_op(editor, op, indentation);
+    }
+}
+
+
+function generateHTMLfromSource(editor, code){
+    src = aNode("div", "code", []);
+    addNodeList(editor, [src]);
+    var cflag;
+    var i, j;
+
+    // Class properties
+    for (i = 0; cflag = code.flags[i]; i++){
+        addNodeList(src, [aNode("span", "k", [txtNode(cflag)]),
+                             spNode()]);
+    }
+    addNodeList(src, [aNode("span", "k", [txtNode("class")]),
+                         spNode(),
+                         aNode("span", "nc", [txtNode(code.className)]),
+                         spNode()]);
+    if (code.superClassName){
+        addNodeList(src, [aNode("span", "k", [txtNode("extends")]),
+                             spNode(),
+                             aNode("span", "nc", [txtNode(
+                                 code.superClassName)]),
+                             spNode()]);
+    }
+
+    addNodeList(src, [oNode("{"),
+                      brNode(),
+                      brNode()]);
+
+
+    // Class fields
+    var field;
+    var fflag;
+    for (i = 0; field = code.fields[i]; i++){
+        addNodeList(src, [spNode(4)]);
+        for (j = 0; fflag = field.flags[j]; j++){
+            addNodeList(src, [aNode("span", "k", [txtNode(fflag)]), spNode()]);
+        }
+
+        addNodeList(src, [aNode("span", "kt", [txtNode(field.type)]),
+                          spNode(),
+                          aNode("span", "nv", [txtNode(field.name)])]);
+
+        if (field.value){
+            addNodeList(src, [spNode(), oNode("="), spNode(),
+                              aNode("span", "n", [txtNode(field.value)])]);
+        }
+        addNodeList(src, [txtNode(";"), brNode()]);
+    }
+
+    addNodeList(src, [brNode()]);
+
+    // Class methods
+    var method;
+    var mflag;
+    for (i = 0; method = code.methods[i]; i++){
+        var anchor = aNode("a", "nf", [txtNode(method.name)]);
+        anchor.setAttribute("name", "__" + code.className + "__" +
+                            method.name);
+
+        addNodeList(src, [spNode(4)]);
+        for (j = 0; mflag = method.flags[j]; j++){
+            addNodeList(src, [aNode("span", "k", [txtNode(mflag)]), spNode()]);
+        }
+
+        addNodeList(src, [aNode("span", "kt", [txtNode(method.type)]),
+                          spNode(),
+                          anchor,
+                          oNode("(")]);
+
+        var mparam;
+        var first = true;
+        for (j = 0; mparam = method.params[j]; j++){
+            if (first){
+                first = false;
+            }
+            else {
+                addNodeList(src, [oNode(","), spNode()]);
+            }
+            addNodeList(src, [aNode("span", "kt", [txtNode(mparam.type)])]);
+            if (mparam.name){
+                addNodeList(src, [spNode(),
+                                  txtNode(mparam.name)]);
+            }
+        }
+
+        addNodeList(src, [oNode(")"), spNode(),
+                          oNode("{"), brNode()]);
+
+        show_method_ops(src, method);
+
+        addNodeList(src, [spNode(4), oNode("}"), brNode(), brNode()]);
+    }
+
+    addNodeList(src, [oNode("}")]);
+}
+
+
 /**
  * Description: Handles the class adition to the interface.
  *
@@ -36,7 +197,7 @@ function handleNewSource(classList){
         if (editor.innerHTML.replace(/\s*/, "").length == 0){
             var prefer_bytecode = document.getElementById("prefer_bytecode").checked;
             currentFile = cls;
-            editor.appendChild(cls.getSource(prefer_bytecode));
+            generateHTMLfromSource(editor, cls.getSource(prefer_bytecode));
         }
 
         ctree.appendChild(mtree);
@@ -56,5 +217,8 @@ function refreshCode(){
         editor.removeChild(editor.lastChild);
     }
     var cls = currentFile;
-    editor.appendChild(cls.getSource(prefer_bytecode));
+    if (cls !== undefined){
+        generateHTMLfromSource(editor, cls.getSource(prefer_bytecode));
+        console.log(cls.getSource());
+    }
 }

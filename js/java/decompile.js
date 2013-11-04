@@ -27,15 +27,6 @@ function asClassName(className){
 }
 
 
-function oNode(content){
-    return aNode("span", "o", [txtNode(content)]);
-}
-
-
-function indent(level){
-    return spNode((level + 1) * indentation);
-}
-
 /**
  * Description: Converts a general binary representation of the access
  *   flags to a dictionary.
@@ -150,34 +141,20 @@ function decompile_call(stack, opcode, object, level){
     var function_name = function_info.name;
     var class_name = function_class.name;
 
-    var info = [];
+    var info = {arguments: []};
 
-    /*
-    if (class_name !== object.name){
-        info = info.concat([txtNode(asClassName(class_name)), txtNode(".")]);
-    }
-     */
     var params = descriptor2TypeAndParams(function_info.descriptor)[1];
 
-    info = info.concat([aNode("span", "na", [txtNode(function_name)]),
-                        oNode("(")]);
+    info.name = function_name;
     var arguments = [];
 
     for(var i = 0; i < params.length; i++){
         arguments.push(stack.pop());
     }
-    var first = true;
-    for (;arguments.length !== 0;){
-        if (!first){
-            info.push(oNode(", "));
-        } else {
-            first = false;
-        }
-        info.push(txtNode(arguments.pop()));
-    }
 
-    info = info.concat([oNode(")"),
-                        oNode(";")]);
+    for (;arguments.length !== 0;){
+        info.arguments.push(arguments.pop());
+    }
 
     return info;
 }
@@ -208,19 +185,17 @@ function assign_param_name(method, index, type){
 }
 
 
-function show_decompiled_java_method(method, tree, object, level){
+function show_decompiled_java_method(method, object, level){
     var stack = []; // Java data stack
     var opcode;
     var frame = []; // Block bounds
+    var ops = [];
     for (var i = 0; opcode = method.opcodes[i]; i++){
-        console.log(opcode);
-        console.log(stack);
-        while ((frame.length > 0) && (frame[frame.length - 1] <= opcode.position)){
+        var op = {};
+
+        while ((frame.length > 0) && (frame[frame.length - 1].border <= opcode.position)){
             frame.pop();
             level--;
-            addNodeList(tree, [indent(level),
-                               oNode("}"),
-                               brNode()]);
         }
 
         switch(opcode.mnemonic){
@@ -237,17 +212,11 @@ function show_decompiled_java_method(method, tree, object, level){
         case "ldc":
             var value = get_java_constant_comments(object.constantPool,
                                                   opcode.params[0].value);
-            if (value.startsWith('"')){
-                value = aNode("span", "s", [txtNode(value)]);
-            }
-            else if (value.isDigits()){
-                value = aNode("span", "mi", [txtNode(value)]);
-            }
             stack.push(value);
             break;
 
         case "iconst_m1":
-            stack.push(aNode("span", "mi", [txtNode("-1")]));
+            stack.push(-1);
             break;
 
         case "iconst_0":
@@ -256,21 +225,18 @@ function show_decompiled_java_method(method, tree, object, level){
         case "iconst_3":
         case "iconst_4":
         case "iconst_5":
-            stack.push(aNode("span", "mi", [txtNode(opcode.mnemonic.slice(-1))]));
+            stack.push(opcode.mnemonic.slice(-1));
             break;
 
         case "istore_0":
         case "istore_1":
         case "istore_2":
         case "istore_3":
-            addNodeList(tree,
-                        [indent(level),
-                         aNode("span", "n", [txtNode(
-                            assign_local_variable(method,
-                                                  opcode.mnemonic.slice(-1)))]),
-                         oNode(" = "),
-                         stack.pop(),
-                         brNode()]);
+            op.operation = 'assignation';
+            op.lvalue = assign_local_variable(method,
+                                              opcode.mnemonic.slice(-1));
+            op.rvalue = stack.pop();
+            ops.push(op);
             break;
 
         case "iload_0":
@@ -292,7 +258,7 @@ function show_decompiled_java_method(method, tree, object, level){
                 }
             }
             if (value !== undefined){
-                stack.push(aNode("span", "mi", [txtNode(value)]));
+                stack.push(value);
             }
             break;
 
@@ -302,17 +268,14 @@ function show_decompiled_java_method(method, tree, object, level){
             var field = object.constantPool[opcode.params[0].value - 1];
             var nameAndType = object.constantPool[field.nameAndTypeIndex - 1];
 
-            addNodeList(tree, [indent(level)]);
-
-            /* @TODO Style */
+            op.operation = 'assignation';
             if (object_ref !== 'this'){
-                addNodeList(tree, [aNode("span", "n", [txtNode(object_ref)]),
-                                   oNode(".")]);
+                op.lvalue_obj = object_ref;
             }
-            addNodeList(tree, [aNode("span", "na", [txtNode(nameAndType.name)]),
-                               oNode(" = "),
-                               txtNode(value),
-                               brNode()]);
+            op.lvalue = nameAndType.name;
+            op.rvalue = value;
+            ops.push(op);
+
             break;
 
         case "getfield":
@@ -325,18 +288,13 @@ function show_decompiled_java_method(method, tree, object, level){
                 var value = assign_variable_name(method, i, object, returned_type);
                 stack.push(value);
 
-                /* @TODO Style */
-                addNodeList(tree, [indent(level),
-                                   aNode("span", "kt", [txtNode(returned_type)]),
-                                   spNode(),
-                                   txtNode(value),
-                                   oNode(" = ")]);
+                op.operation = 'assignation';
+                op.lvalue_type = returned_type;
+                op.lvalue = value;
+                op.rvalue_obj = object_ref;
+                op.rvalue = nameAndType.name;
+                ops.push(op);
 
-                addNodeList(tree, [txtNode(object_ref),
-                                   oNode("."),
-                                   txtNode(nameAndType.name),
-                                   oNode(";"),
-                                   brNode()]);
             } else {
                 stack.push(nameAndType.name);
             }
@@ -344,11 +302,8 @@ function show_decompiled_java_method(method, tree, object, level){
 
         case "return":
             if (i != (method.opcodes.length - 1)){
-                /* @TODO Style */
-                addNodeList(tree, [indent(level),
-                                   aNode("span", "k", [txtNode("return")]),
-                                   oNode(";"),
-                                   brNode()]);
+                op.operation = 'return';
+                ops.push(op);
             }
             break;
 
@@ -366,21 +321,18 @@ function show_decompiled_java_method(method, tree, object, level){
 
             var decompilation = dec_call;
             var returned_type = get_call_type_and_params(opcode, object)[0];
-            var assignation = [indent(level)];
 
+            op.operation = 'assignation';
+            op.rvalue = decompilation;
             if (returned_type !== "void"){
 
                 var result = assign_variable_name(method, i, object, returned_type);
-                assignation = assignation.concat([
-                    aNode("span", "kt", [txtNode(asClassName(returned_type))]),
-                    spNode(),
-                    txtNode(result),
-                    oNode(" = ")]);
+                op.lvalue_type = returned_type;
+                op.lvalue = result;
             }
 
             if (invoked_object !== "this"){
-                decompilation = [txtNode(invoked_object),
-                                 oNode(".")].concat(decompilation);
+                op.rvalue_obj = invoked_object;
             }
 
             if ((returned_type !== "void") &&
@@ -392,65 +344,56 @@ function show_decompiled_java_method(method, tree, object, level){
                 if (returned_type !== "void"){
                     stack.push(result);
                 }
-                addNodeList(tree, assignation.concat(decompilation, [brNode()]));
+                if (op.lvalue !== undefined){
+                    ops.push(op);
+                }
             }
             break;
 
         case "new":
             var type = object.constantPool[opcode.params[0].value - 1].name;
-                var result = assign_variable_name(method, i, object, type);
-                addNodeList(tree, [
-                    indent(level),
-                    aNode("span", "kt", [txtNode(asClassName(type))]),
-                    spNode(),
-                    txtNode(result),
-                    oNode(" = "),
-                    aNode("span", "k", [txtNode("new ")]),
-                    aNode("span", "nc", [txtNode(asClassName(type))]),
-                    oNode("("),
-                    oNode(");"),
-                    brNode()]);
+            var result = assign_variable_name(method, i, object, type);
+            op.operation = 'new';
+            op.lvalue_type = asClassName(type);
+            op.lvalue = result;
+            op.rvalue = asClassName(type);
+            op.params = []; /// @TODO params
+            ops.push(op);
 
-                stack.push(result);
+            stack.push(result);
             break;
 
         case "getstatic":
             var ref = object.constantPool[opcode.params[0].value - 1];
             var name = object.constantPool[ref.nameAndTypeIndex - 1].name;
             var cls =  object.constantPool[ref.classIndex - 1].name;
-            stack.push([aNode("spNode", "n", [txtNode(asClassName(cls))]),
-                        oNode("."),
-                        aNode("spNode", "na", [txtNode(name)])]);
+            stack.push({object_ref: asClassName(cls),
+                        value: name});
             break;
 
         case "areturn":
-            addNodeList(tree, [indent(level),
-                               aNode("span", "k", [txtNode("return ")]),
-                               txtNode(stack.pop()),
-                               oNode(";"),
-                               brNode()]);
+            op.operation = 'return';
+            op.value = stack.pop();
+            ops.push(op);
+
             break;
 
         case "athrow":
-            addNodeList(tree, [indent(level),
-                               aNode("span", "k", [txtNode("throw ")]),
-                               txtNode(stack.pop()),
-                               oNode(";"),
-                               brNode()]);
+            op.operation = 'throw';
+            op.value = stack.pop();
+            ops.push(op);
+
             break;
 
         case "ifnonnull":
-            addNodeList(tree, [indent(level),
-                               aNode("span", "k", [txtNode("if")]),
-                               spNode(),
-                               oNode("("),
-                               txtNode(stack.pop()),
-                               oNode(" == "),
-                               aNode("span", "kc", [txtNode("null")]),
-                               oNode("){"),
-                               brNode()]);
+            op.operation = 'if';
+            op.comparison_left = stack.pop();
+            op.comparison = "==";
+            op.comparison_right = "null";
+            ops.push(op);
+
             level++;
-            frame.push(opcode.params[0].value);
+            frame.push({border: opcode.params[0].value, op: op});
             break;
 
         case "if_icmpeq":
@@ -469,28 +412,24 @@ function show_decompiled_java_method(method, tree, object, level){
             case "le": condition = ">";  break;
             }
             var reference = stack.pop();
-            addNodeList(tree, [indent(level),
-                               aNode("span", "k", [txtNode("if")]),
-                               spNode(),
-                               oNode("("),
-                               txtNode(stack.pop()),
-                               oNode(" " + condition + " "),
-                               txtNode(reference),
-                               oNode("){"),
-                               brNode()]);
+            op.operation = 'if';
+            op.comparison_left = stack.pop();
+            op.comparison = condition;
+            op.comparison_right = reference;
+            ops.push(op);
+
             level++;
-            frame.push(opcode.params[0].value);
+            frame.push({border: opcode.params[0].value, op: op});
             break;
 
         default:
-            addNodeList(tree, [indent(level),
-                               txtNode("// ")]);
-            show_disassembled_java_opcode(opcode, tree);
+            op.operation = "comment";
+            op.comment_value = show_disassembled_java_opcode(opcode);
+            ops.push(op);
+
         }
-        console.log(">>", stack);
-        console.log(" ------------------ ");
     }
-    console.log("<<<<<<<<<<<<<<<<<<<<");
+    return ops;
 }
 
 
@@ -501,7 +440,9 @@ function show_decompiled_java_method(method, tree, object, level){
  *
  */
 javaClass.prototype.getSource = function(prefer_bytecode) {
-    var src = aNode("div", "code", []);
+    var src = {flags: [],
+               fields: [],
+               methods: []};
 
     var i;
     var flag;
@@ -520,43 +461,34 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
     for (i = 0; flag = possibleClassFlags[i]; i++){
 
         if (this.flags[flag]){
-            addNodeList(src, [aNode("span", "k", [txtNode(flag)]), spNode()]);
+            src.flags.push(flag);
         }
     }
 
     // class name and superclass
-    addNodeList(src, [aNode("span", "k", [txtNode("class")]),
-                      spNode(),
-                      aNode("span", "nc", [txtNode(asClassName(this.name))]),
-                      spNode()]);
+    src.className = asClassName(this.name);
 
     if (this.superClass.name != 'java/lang/Object'){
-        addNodeList(src, [aNode("span", "k", [txtNode("extends")]), spNode(),
-                          aNode("span", "nc", [txtNode(asClassName(this.superClass.name))]), spNode()]);
+        src.superClassName = asClassName(this.superClass.name);
     }
-
-    addNodeList(src, [oNode("{"),
-                      brNode()]);
 
     // Field list
     var field;
-    var method;
     for (i = 0; field = this.fields[i]; i++){
         if ((field.type === undefined) || (field.name === undefined)){
             continue;
         }
+        var fdata = {flags: []};
+        src.fields.push(fdata);
 
-        addNodeList(src, [indent(0)]);
         for (j = 0; flag = possibleFieldFlags[j]; j++){
             if (field.flags[flag]){
-                addNodeList(src, [aNode("span", "k", [txtNode(escape(flag))]),
-                                  spNode()]);
+                fdata.flags.push(escape(flag));
             }
         }
 
-        addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(field.type))]),
-                          spNode(),
-                          aNode("span", "nv", [txtNode(escape(field.name))])]);
+        fdata.type = asClassName(field.type);
+        fdata.name = escape(field.name);
 
         var ind = Number(field.attributes["ConstantValue"]);
         var val = undefined;
@@ -570,76 +502,53 @@ javaClass.prototype.getSource = function(prefer_bytecode) {
             if (val.indexOf(".") !== -1){
                 val += "f";
             }
-            addNodeList(src, [spNode(),
-                              oNode("="),
-                              spNode(),
-                              aNode("span", "n", [txtNode(escape(val))])]);
+            fdata.value = escape(val);
         }
-
-        addNodeList(src, [oNode(";"), brNode()]);
     }
-    addNodeList(src, [brNode()]);
 
     // Method list
     var method;
     for (i = 0; method = this.methods[i]; i++){
-
         /* Methods wrapped with <> are helpers, not presented in source code */
         if ((!prefer_bytecode) && (method.name.startsWith("<"))){
             continue;
         }
 
-        var anchor = aNode("a", "nf", [txtNode(asClassName(method.name))]);
-        anchor.setAttribute("name", "__" + asClassName(this.name) + "__" +
-                            escape(method.name));
+        var mdata = {flags: [],
+                     params: []};
+        src.methods.push(mdata);
 
-        addNodeList(src, [indent(0)]);
+
+        mdata.name = asClassName(method.name);
+
         for (j = 0; flag = possibleMethodFlags[j]; j++){
             if (method.flags[flag]){
-                addNodeList(src, [aNode("span", "k", [txtNode(escape(flag))]),
-                                  spNode()]);
+                mdata.flags.push(escape(flag));
             }
         }
 
 
-        addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(method.type))]),
-                          spNode(), anchor,
-                          oNode("(")]);
+        mdata.type = asClassName(method.type);
 
         // Method parameters
         for (var j = 0; param = method.params[j]; j++){
-            if (j > 0){
-                addNodeList(src, [txtNode(", ")]);
-            }
-
-            addNodeList(src, [aNode("span", "kt", [txtNode(asClassName(param))])]);
+            var pdata = {type: asClassName(param)};
+            mdata.params.push(pdata);
 
             // Give the parameter a name
             if (!(prefer_bytecode || method.name.startsWith("<"))){
-                addNodeList(src, [spNode(),
-                                  txtNode(assign_param_name(method, j + 1,
-                                                            param))]);
+                pdata.name = assign_param_name(method, j + 1, param);
             }
         }
 
-        addNodeList(src, [oNode(")"), spNode(),
-                          oNode("{"),
-                          brNode()]);
-
-
         if (prefer_bytecode) {
-            show_disassembled_java_bytecode(method, src, this.constantPool);
+            mdata.code = show_disassembled_java_bytecode(method,
+                                                         this.constantPool);
         }
         else {
-            show_decompiled_java_method(method, src, this, 1);
+            mdata.code = show_decompiled_java_method(method, this, 1);
         }
-
-        addNodeList(src, [indent(0),
-                          oNode("}"),
-                          brNode(), brNode()]);
     }
-
-    addNodeList(src, [oNode("}")]);
 
     return src;
 }
