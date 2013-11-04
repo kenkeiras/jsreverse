@@ -1,6 +1,6 @@
 all: web-based cli-based
 
-web-based: common/ web/
-	cp -Rv common/* web/js/
+web-based: lib/ web/
+	cp -Rv lib/* web/js/
 
-cli-based: common/ cli/
+cli-based: lib/ bin/

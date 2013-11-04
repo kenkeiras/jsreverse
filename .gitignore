@@ -14,3 +14,5 @@ web/js/java/fields.js
 web/js/java/interfaces.js
 web/js/java/methods.js
 
+# NPM layout
+npm-debug.log
