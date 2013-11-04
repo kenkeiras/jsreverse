@@ -189,13 +189,17 @@ function show_decompiled_java_method(method, object, level){
     var stack = []; // Java data stack
     var opcode;
     var frame = []; // Block bounds
-    var ops = [];
+    var toplevel_ops = [];
     for (var i = 0; opcode = method.opcodes[i]; i++){
+        var ops = toplevel_ops;
         var op = {};
 
         while ((frame.length > 0) && (frame[frame.length - 1].border <= opcode.position)){
             frame.pop();
             level--;
+        }
+        if (frame.length > 0){
+            ops = frame[frame.length - 1].ops;
         }
 
         switch(opcode.mnemonic){
@@ -395,7 +399,9 @@ function show_decompiled_java_method(method, object, level){
             ops.push(op);
 
             level++;
-            frame.push({border: opcode.params[0].value, op: op});
+            var block = {border: opcode.params[0].value, op: op, ops: []};
+            frame.push(block);
+            op.block = block;
             break;
 
         case "if_icmpeq":
@@ -421,7 +427,9 @@ function show_decompiled_java_method(method, object, level){
             ops.push(op);
 
             level++;
-            frame.push({border: opcode.params[0].value, op: op});
+            var block = {border: opcode.params[0].value, op: op, ops: []};
+            frame.push(block);
+            op.block = block;
             break;
 
         default:
