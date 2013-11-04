@@ -50,11 +50,12 @@ function show_op(editor, op, indentation, lastOp){
         addNodeList(editor, [txtNode(op.lvalue),
                              oNode(" = ")]);
 
-        if (op.rvalue_obj){
+        if (op.new){
+            addNodeList(editor, [aNode("span", "k", [txtNode("new ")])]);
+        }
+        else if (op.rvalue_obj){
             addNodeList(editor, [txtNode(op.rvalue_obj), oNode(".")]);
         }
-
-        show_rvalue(editor, op.rvalue);
 
         show_rvalue(editor, op.rvalue);
         addNodeList(editor, [oNode(";"), brNode()]);
