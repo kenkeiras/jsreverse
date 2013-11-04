@@ -22,7 +22,17 @@ function call_object_to_html(call_o){
 }
 
 
-function show_op(editor, op, indentation){
+function show_rvalue(editor, rvalue){
+    if (rvalue.name !== undefined){
+        addNodeList(editor, call_object_to_html(rvalue));
+    }
+    else {
+        addNodeList(editor, [txtNode(rvalue)]);
+    }
+}
+
+
+function show_op(editor, op, indentation, lastOp){
     switch(op.operation){
     case 'assignation':
         addNodeList(editor, [spNode(indentation)]);
@@ -44,14 +54,24 @@ function show_op(editor, op, indentation){
             addNodeList(editor, [txtNode(op.rvalue_obj), oNode(".")]);
         }
 
-        if (op.rvalue.name !== undefined){
-            addNodeList(editor, call_object_to_html(op.rvalue));
-        }
-        else {
-            addNodeList(editor, [txtNode(op.rvalue)]);
-        }
+        show_rvalue(editor, op.rvalue);
+
+        show_rvalue(editor, op.rvalue);
         addNodeList(editor, [oNode(";"), brNode()]);
 
+        break;
+
+    case 'return':
+        addNodeList(editor, [spNode(indentation)]);
+        if ((op.value !== undefined) || (!lastOp)){
+            addNodeList(editor, [aNode("span", "k", [txtNode("return ")])]);
+
+            if (op.value !== undefined){
+                show_rvalue(editor, op.value);
+            }
+
+            addNodeList(editor, [oNode(";"), brNode()]);
+        }
         break;
     default:
         console.log(op);
@@ -66,7 +86,7 @@ function show_method_ops(editor, method){
     var i;
     var op;
     for (i = 0; op = method.code[i]; i++){
-        show_op(editor, op, indentation);
+        show_op(editor, op, indentation, i + 1 == method.code.length);
     }
 }
 
