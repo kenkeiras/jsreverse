@@ -83,6 +83,29 @@ function show_op(editor, op, indentation, lastOp){
                              brNode()]);
         break;
 
+    case 'if':
+        addNodeList(editor, [spNode(indentation),
+                             aNode("span", "k", [txtNode("if ")]),
+                             oNode("("),
+                             txtNode(op.comparison_left),
+                             spNode(),
+                             oNode(op.comparison),
+                             spNode(),
+                             txtNode(op.comparison_right),
+                             oNode("){"),
+                             brNode()]);
+
+        var subop;
+        for (var j = 0; subop = op.block.ops[j]; j++){
+            show_op(editor, subop, indentation + 4,
+                    lastOp && ((j + 1) == op.block.length));
+        }
+
+        addNodeList(editor, [spNode(indentation),
+                             oNode("}"),
+                             brNode()]);
+        break;
+
 
     default:
         console.log(op);
