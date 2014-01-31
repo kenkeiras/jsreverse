@@ -6,10 +6,9 @@ web-based: lib/ web/
 
 cli-based: lib/ bin/
 
-test/bytecode/HelloWorld.class: test/source/HelloWorld.java
-	javac $+ -d test/bytecode/
 
-java-test-bytecode: test/bytecode/HelloWorld.class
+java-test-bytecode: test/source/*.java
+	javac test/source/*.java -d test/bytecode/
 
 test: cli-based java-test-bytecode
 	mocha -u tdd
