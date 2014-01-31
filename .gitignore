@@ -7,3 +7,4 @@ web/js/utils.js
 
 # NPM layout
 npm-debug.log
+node_modules/
