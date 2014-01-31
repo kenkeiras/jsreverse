@@ -3,14 +3,7 @@
 *~
 
 # Common files in web directory
-web/js/reverse.js
-web/js/java/attributes.js
-web/js/java/bytecode.js
-web/js/java/constant_pool.js
-web/js/java/decompile.js
-web/js/java/descriptor.js
-web/js/java/disassemble.js
-web/js/java/fields.js
-web/js/java/interfaces.js
-web/js/java/methods.js
+web/js/utils.js
 
+# NPM layout
+npm-debug.log
