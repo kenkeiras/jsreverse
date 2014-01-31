@@ -17,7 +17,7 @@ function prettyPrint(code){
 
 
 if (process.argv.length != 3){
-    console.warn(process.argv[0] + " " + process.argv[1] + " <input>");
+    console.warn("jsreverse <input.class>");
 }
 else {
     fs.readFile(process.argv[2], 'binary', function (err,data) {
