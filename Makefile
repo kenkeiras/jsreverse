@@ -5,3 +5,11 @@ web-based: lib/ web/
 	cp -v lib/utils.js web/js/
 
 cli-based: lib/ bin/
+
+test/bytecode/HelloWorld.class: test/source/HelloWorld.java
+	javac $+ -d test/bytecode/
+
+java-test-bytecode: test/bytecode/HelloWorld.class
+
+test: cli-based java-test-bytecode
+	mocha -u tdd

@@ -20,7 +20,7 @@ if (process.argv.length != 3){
     console.warn("jsreverse <input.class>");
 }
 else {
-    fs.readFile(process.argv[2], 'binary', function (err,data) {
+    fs.readFile(process.argv[2], 'binary', function (err, data) {
         if (err) {
             console.warn(err);
         }

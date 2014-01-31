@@ -13,5 +13,8 @@
         "bin": "bin",
         "lib": "lib"
     },
+    "scripts": {
+        "test": "make test"
+    },
     "preferGlobal": "true"
 }
