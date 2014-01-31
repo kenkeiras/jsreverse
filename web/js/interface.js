@@ -154,15 +154,21 @@ function generateHTMLfromSource(editor, code){
     var cflag;
     var i, j;
     var classNameSections = /^(.*)\.([^.]*)$/.exec(code.className);
+    if (classNameSections === null){
+        classNameSections = ["", null, code.className];
+    }
+
     var packageName = classNameSections[1];
     var className = classNameSections[2];
 
-    addNodeList(src, [aNode("span", "k", [txtNode("package")]),
-                      spNode(),
-                      aNode("span", "nc", [txtNode(packageName)]),
-                      aNode("span", "o", [txtNode(";")]),
-                      brNode(),
-                      brNode()]);
+    if (packageName !== null){
+        addNodeList(src, [aNode("span", "k", [txtNode("package")]),
+                          spNode(),
+                          aNode("span", "nc", [txtNode(packageName)]),
+                          aNode("span", "o", [txtNode(";")]),
+                          brNode(),
+                          brNode()]);
+    }
 
 
     // Class properties
