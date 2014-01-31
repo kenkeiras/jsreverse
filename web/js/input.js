@@ -42,7 +42,7 @@ function handleFileSelect(evt) {
                     $('#editor').css({display: "block"}).
                                  transition({opacity: 1});
 
-                    handleNewSource(deco);
+                    handleNewSource([deco]);
                 }
                 else{
                     var errorZone = document.getElementById('errorMessage');
