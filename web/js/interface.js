@@ -153,6 +153,17 @@ function generateHTMLfromSource(editor, code){
     addNodeList(editor, [src]);
     var cflag;
     var i, j;
+    var classNameSections = /^(.*)\.([^.]*)$/.exec(code.className);
+    var packageName = classNameSections[1];
+    var className = classNameSections[2];
+
+    addNodeList(src, [aNode("span", "k", [txtNode("package")]),
+                      spNode(),
+                      aNode("span", "nc", [txtNode(packageName)]),
+                      aNode("span", "o", [txtNode(";")]),
+                      brNode(),
+                      brNode()]);
+
 
     // Class properties
     for (i = 0; cflag = code.flags[i]; i++){
@@ -161,7 +172,7 @@ function generateHTMLfromSource(editor, code){
     }
     addNodeList(src, [aNode("span", "k", [txtNode("class")]),
                          spNode(),
-                         aNode("span", "nc", [txtNode(code.className)]),
+                         aNode("span", "nc", [txtNode(className)]),
                          spNode()]);
     if (code.superClassName){
         addNodeList(src, [aNode("span", "k", [txtNode("extends")]),
@@ -193,7 +204,8 @@ function generateHTMLfromSource(editor, code){
             addNodeList(src, [spNode(), oNode("="), spNode(),
                               aNode("span", "n", [txtNode(field.value)])]);
         }
-        addNodeList(src, [txtNode(";"), brNode()]);
+        addNodeList(src, [aNode("span", "o", [txtNode(";")]),
+                          brNode()]);
     }
 
     addNodeList(src, [brNode()]);
