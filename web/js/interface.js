@@ -54,7 +54,13 @@ function show_op(editor, op, indentation, lastOp){
             addNodeList(editor, [aNode("span", "k", [txtNode("new ")])]);
         }
         else if (op.rvalue_obj){
-            addNodeList(editor, [txtNode(op.rvalue_obj), oNode(".")]);
+            if (op.rvalue_obj.object_ref !== undefined){
+                addNodeList(editor, [txtNode(op.rvalue_obj.object_ref), oNode("."),
+                                    txtNode(op.rvalue_obj.value), oNode(".")]);
+            }
+            else{
+                addNodeList(editor, [txtNode(op.rvalue_obj), oNode(".")]);
+            }
         }
 
         show_rvalue(editor, op.rvalue);
@@ -110,7 +116,13 @@ function show_op(editor, op, indentation, lastOp){
     case 'call':
         addNodeList(editor, [spNode(indentation)]);
         if (op.rvalue_obj){
-            addNodeList(editor, [txtNode(op.rvalue_obj), oNode(".")]);
+            if (op.rvalue_obj.object_ref !== undefined){
+                addNodeList(editor, [txtNode(op.rvalue_obj.object_ref), oNode("."),
+                                    txtNode(op.rvalue_obj.value), oNode(".")]);
+            }
+            else{
+                addNodeList(editor, [txtNode(op.rvalue_obj), oNode(".")]);
+            }
         }
 
         show_rvalue(editor, op.rvalue);
