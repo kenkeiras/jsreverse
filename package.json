@@ -4,7 +4,7 @@
     "description": "Java decompiler",
     "license": "WTFPL",
     "bugs": {
-        "url": "http://github.com/owner/project/issues"
+        "url": "http://github.com/kenkeiras/jsreverse/issues"
     },
     "bin": {
         "jsreverse": "./bin/cli.js"
