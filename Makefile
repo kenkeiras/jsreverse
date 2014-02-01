@@ -1,3 +1,6 @@
+REPORTER = dot
+
+
 all: web-based cli-based
 
 web-based: lib/ web/
@@ -7,8 +10,10 @@ web-based: lib/ web/
 cli-based: lib/ bin/
 
 
-java-test-bytecode: test/source/*.java
+test/bytecode/: test/source/*.java
 	javac test/source/*.java -d test/bytecode/
 
-test: cli-based java-test-bytecode
-	mocha -u tdd
+test: cli-based test/bytecode/
+	mocha -u tdd --reporter $(REPORTER)
+
+test-all: test
