@@ -68,6 +68,23 @@ function show_op(editor, op, indentation, lastOp){
 
         break;
 
+    case 'increment':
+        addNodeList(editor, [spNode(indentation),
+                             oNode("++"),
+                             txtNode(op.variable),
+                             oNode(";"),
+                             brNode()]);
+        break;
+
+    case 'decrement':
+        addNodeList(editor, [spNode(indentation),
+                             oNode("--"),
+                             txtNode(op.variable),
+                             oNode(";"),
+                             brNode()]);
+        break;
+
+
     case 'return':
         addNodeList(editor, [spNode(indentation)]);
         if ((op.value !== undefined) || (!lastOp)){
@@ -90,8 +107,11 @@ function show_op(editor, op, indentation, lastOp){
         break;
 
     case 'if':
+    case 'while':
+
         addNodeList(editor, [spNode(indentation),
-                             aNode("span", "k", [txtNode("if ")]),
+                             aNode("span", "k", [txtNode(op.operation)]),
+                             spNode(),
                              oNode("("),
                              txtNode(op.comparison_left),
                              spNode(),
