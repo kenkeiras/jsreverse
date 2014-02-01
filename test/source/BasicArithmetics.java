@@ -1,7 +1,7 @@
 class BasicArithmetics {
 
 
-    public int integer_adition(int intp_1, int intp_2) {
+    public int integer_addition(int intp_1, int intp_2) {
         return intp_1 + intp_2;
     }
 
@@ -17,7 +17,7 @@ class BasicArithmetics {
         return intp_1 / intp_2;
     }
 
-    public float float_adition(float floatp_1, float floatp_2) {
+    public float float_addition(float floatp_1, float floatp_2) {
         return floatp_1 + floatp_2;
     }
 
@@ -33,7 +33,7 @@ class BasicArithmetics {
         return floatp_1 / floatp_2;
     }
 
-    public double double_adition(double doublep_1, double doublep_2) {
+    public double double_addition(double doublep_1, double doublep_2) {
         return doublep_1 + doublep_2;
     }
 
@@ -49,7 +49,7 @@ class BasicArithmetics {
         return doublep_1 / doublep_2;
     }
 
-    public long long_adition(long longp_1, long longp_2) {
+    public long long_addition(long longp_1, long longp_2) {
         return longp_1 + longp_2;
     }
 
