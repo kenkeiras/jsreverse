@@ -36,4 +36,11 @@ class IfFlow {
         return 0;
     }
 
+    public int int_sum(int intp_1, int intp_2) {
+        if ((intp_1 + intp_2) > 0){
+            return 1;
+        }
+        return 0;
+    }
+
 }
