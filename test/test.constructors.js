@@ -11,4 +11,6 @@ suite('Object constructors', function(done){
          decompilationTest("SingleParameterConstructor"));
     test('two parameter constructor',
          decompilationTest("TwoParameterConstructor"));
+    test('overloaded constructors',
+         decompilationTest("OverloadedConstructor"));
 });
