@@ -44,4 +44,17 @@ class IfFlow {
         return 0;
     }
 
+    public int nested_int(int intp_1, int intp_2, int intp_3) {
+        if (intp_1 > intp_2){
+            if (intp_1 > intp_3){
+                return intp_1;
+            }
+            return intp_3;
+        }
+        if (intp_2 > intp_3){
+            return intp_2;
+        }
+        return intp_3;
+    }
+
 }
