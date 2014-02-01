@@ -22,7 +22,7 @@ exports = module.exports = (function (source, bytecode){
         function checkCode(code){
             fs.readFile(source, "utf-8", function(err, data){
                 assert.equal(err, null);
-                assert.equal(data, code, "Code mismatch");
+                assert.equal(code, data, "Code mismatch");
                 done();
             });
         }
