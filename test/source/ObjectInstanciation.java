@@ -6,7 +6,7 @@ class ObjectInstanciation {
     }
 
     public void main(String[] stringsp_1) {
-        ObjectInstanciation objectinstanciation_0 = new ObjectInstanciation();
+        ObjectInstanciation objectinstanciation_1 = new ObjectInstanciation();
     }
 
 }
