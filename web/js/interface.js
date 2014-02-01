@@ -229,9 +229,11 @@ function generateHTMLfromSource(editor, code){
             addNodeList(src, [aNode("span", "k", [txtNode(mflag)]), spNode()]);
         }
 
-        addNodeList(src, [aNode("span", "kt", [txtNode(method.type)]),
-                          spNode(),
-                          anchor,
+        if (method.type !== undefined){
+            addNodeList(src, [aNode("span", "kt", [txtNode(method.type)]),
+                              spNode()]);
+        }
+        addNodeList(src, [anchor,
                           oNode("(")]);
 
         var mparam;
