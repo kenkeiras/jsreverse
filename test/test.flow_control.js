@@ -9,8 +9,6 @@ suite('Flow control', function(done){
          decompilationTest("IfFlow"));
     test('while loop',
          decompilationTest("WhileLoop"));
-    // test('two parameter constructor',
-    //      decompilationTest("TwoParameterConstructor"));
-    // test('overloaded constructors',
-    //      decompilationTest("OverloadedConstructor"));
+    test('for loop',
+         decompilationTest("ForLoop"));
 });
