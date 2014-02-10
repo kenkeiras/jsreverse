@@ -9,9 +9,9 @@ var currentFile;
 
 function call_object_to_html(call_o){
     var html = [aNode("span", "na", [txtNode(call_o.name)]), oNode("(")];
-    var arg;
-    for (var i = 0; arg = call_o.arguments[i]; i++){
-        if (i != 0){
+    for (var i = 0; i < call_o.arguments.length; i++){
+        var arg = call_o.arguments[i];
+        if (i !== 0){
             html.push(oNode(", "));
         }
         html.push(txtNode(arg));
@@ -121,8 +121,8 @@ function show_op(editor, op, indentation, lastOp){
                              oNode("){"),
                              brNode()]);
 
-        var subop;
-        for (var j = 0; subop = op.block.ops[j]; j++){
+        for (var j = 0; j < op.block.ops.length ; j++){
+            var subop = op.block.ops[j];
             show_op(editor, subop, indentation + 4,
                     lastOp && ((j + 1) == op.block.length));
         }
@@ -161,8 +161,8 @@ function show_method_ops(editor, method){
 
     var indentation = 8;
     var i;
-    var op;
-    for (i = 0; op = method.code[i]; i++){
+    for (i = 0; i < method.code.length; i++){
+        var op = method.code[i];
         show_op(editor, op, indentation, i + 1 == method.code.length);
     }
 }
@@ -171,7 +171,6 @@ function show_method_ops(editor, method){
 function generateHTMLfromSource(editor, code){
     src = aNode("div", "code", []);
     addNodeList(editor, [src]);
-    var cflag;
     var i, j;
     var classNameSections = /^(.*)\.([^.]*)$/.exec(code.className);
     if (classNameSections === null){
@@ -192,7 +191,8 @@ function generateHTMLfromSource(editor, code){
 
 
     // Class properties
-    for (i = 0; cflag = code.flags[i]; i++){
+    for (i = 0; i < code.flags.length; i++){
+        var cflag = code.flags[i];
         addNodeList(src, [aNode("span", "k", [txtNode(cflag)]),
                              spNode()]);
     }
@@ -214,11 +214,11 @@ function generateHTMLfromSource(editor, code){
 
 
     // Class fields
-    var field;
-    var fflag;
-    for (i = 0; field = code.fields[i]; i++){
+    for (i = 0; i < code.fields.length; i++){
+        var field = code.fields[i];
         addNodeList(src, [spNode(4)]);
-        for (j = 0; fflag = field.flags[j]; j++){
+        for (j = 0; j < field.flags.length; j++){
+            var fflag = field.flags[j];
             addNodeList(src, [aNode("span", "k", [txtNode(fflag)]), spNode()]);
         }
 
@@ -237,15 +237,15 @@ function generateHTMLfromSource(editor, code){
     addNodeList(src, [brNode()]);
 
     // Class methods
-    var method;
-    var mflag;
-    for (i = 0; method = code.methods[i]; i++){
+    for (i = 0; i < code.methods.length; i++){
+        var method = code.methods[i];
         var anchor = aNode("a", "nf", [txtNode(method.name)]);
         anchor.setAttribute("name", "__" + code.className + "__" +
                             method.name);
 
         addNodeList(src, [spNode(4)]);
-        for (j = 0; mflag = method.flags[j]; j++){
+        for (j = 0; j < method.flags.length; j++){
+            var mflag = method.flags[j];
             addNodeList(src, [aNode("span", "k", [txtNode(mflag)]), spNode()]);
         }
 
@@ -256,9 +256,9 @@ function generateHTMLfromSource(editor, code){
         addNodeList(src, [anchor,
                           oNode("(")]);
 
-        var mparam;
         var first = true;
-        for (j = 0; mparam = method.params[j]; j++){
+        for (j = 0; j < method.params.length; j++){
+            var mparam = method.params[j];
             if (first){
                 first = false;
             }
@@ -294,14 +294,14 @@ function handleNewSource(classList){
     var editor = document.getElementById("editorText");
     var tree = document.getElementById("editorTree");
 
-    var cls;
-    for(var i = 0; cls = classList[i]; i++){
+    for(var i = 0; i < classList.length; i++){
+        var cls = classList[i];
         var ctree = document.createElement("li");
         ctree.innerHTML = cls.name;
         var mtree = document.createElement("ul");
 
-        var method;
-        for (var j = 0; method = cls.methods[j]; j++){
+        for (var j = 0; j < cls.methods.length; j++){
+            var method = cls.methods[j];
 
             var mitem = document.createElement("li");
 
@@ -311,7 +311,7 @@ function handleNewSource(classList){
         }
 
 
-        if (editor.innerHTML.replace(/\s*/, "").length == 0){
+        if (editor.innerHTML.replace(/\s*/, "").length === 0){
             var prefer_bytecode = document.getElementById("prefer_bytecode").checked;
             currentFile = cls;
             generateHTMLfromSource(editor, cls.getSource(prefer_bytecode));

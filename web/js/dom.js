@@ -16,9 +16,9 @@ function aNode(nType, nClass, children){
         node.setAttribute("class", nClass);
     }
 
-    var child;
     children = children.flatten();
-    for(var i = 0; child = children[i]; i++){
+    for(var i = 0; i < children.length; i++){
+        var child = children[i];
         node.appendChild(child);
     }
 
@@ -53,9 +53,9 @@ function txtNode(text){
  *
  */
 function addNodeList(parent, children){
-    var child;
     children = children.flatten();
-    for(var i = 0; child = children[i]; i++){
+    for(var i = 0; i < children.length; i++){
+        var child = children[i];
         parent.appendChild(child);
     }
 }

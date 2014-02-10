@@ -21,36 +21,39 @@ function handleFileSelect(evt) {
 
     var dt = evt.dataTransfer;
 
+    var genDisassemblerTrigger = (function(fname){
+        return function(evt) {
+            var deco = decompile(evt.target.result);
+            if (deco !== false){
+
+                // Hide the drop zone and show the editor
+                $('.frameContainer').transition({opacity: 0}).
+                    css({display: "none"});
+
+                $('#editor').css({display: "block"}).
+                    transition({opacity: 1});
+
+                handleNewSource([deco]);
+            }
+            else{
+                var errorZone = document.getElementById('errorMessage');
+                errorZone.innerHTML =
+                    'Sorry, "<em>' + fname + '</em>" couldn\'t be disassembled.';
+            }
+        };
+    });
+
     // Read the file list
     var files = evt.dataTransfer.files;
 
     // Add the files to the decompile queue
-    for (var i = 0, f; f = files[i]; i++){
+    for (var i = 0; i < files.length; i++){
+        var f = files[i];
 
         var reader = new FileReader();
 
         // When a file is read, decompile it and add to the interface.
-        reader.onload = function(fname){
-            return function(evt) {
-                var deco = decompile(evt.target.result);
-                if (deco !== false){
-
-                    // Hide the drop zone and show the editor
-                    $('.frameContainer').transition({opacity: 0}).
-                                        css({display: "none"});
-
-                    $('#editor').css({display: "block"}).
-                                 transition({opacity: 1});
-
-                    handleNewSource([deco]);
-                }
-                else{
-                    var errorZone = document.getElementById('errorMessage');
-                    errorZone.innerHTML =
-                         'Sorry, "<em>' + fname + '</em>" couldn\'t be disassembled.';
-                }
-            };
-        }(f.name);
+        reader.onload = genDisassemblerTrigger(f.name);
 
         reader.readAsBinaryString(f);
     }
