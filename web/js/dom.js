@@ -16,9 +16,9 @@ function aNode(nType, nClass, children){
         node.setAttribute("class", nClass);
     }
 
-    var child;
     children = children.flatten();
-    for(var i = 0; child = children[i]; i++){
+    for(var i = 0; i < children.length; i++){
+        var child = children[i];
         node.appendChild(child);
     }
 
@@ -36,8 +36,8 @@ function aNode(nType, nClass, children){
  *
  */
 function txtNode(text){
-    if ((text.__proto__ !== String.prototype) &&
-        (text.__proto__ !== Number.prototype)){
+    if ((text.constructor.prototype !== String.prototype) &&
+        (text.constructor.prototype !== Number.prototype)){
         return text;
     } else {
         return document.createTextNode(text);
@@ -53,9 +53,9 @@ function txtNode(text){
  *
  */
 function addNodeList(parent, children){
-    var child;
     children = children.flatten();
-    for(var i = 0; child = children[i]; i++){
+    for(var i = 0; i < children.length; i++){
+        var child = children[i];
         parent.appendChild(child);
     }
 }

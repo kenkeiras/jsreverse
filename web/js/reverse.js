@@ -20,4 +20,4 @@ function decompile(file){
     // Unknown file type
     console.log("Unknown file type");
     return false;
-};
+}
