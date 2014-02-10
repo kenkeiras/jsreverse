@@ -36,8 +36,8 @@ function aNode(nType, nClass, children){
  *
  */
 function txtNode(text){
-    if ((text.__proto__ !== String.prototype) &&
-        (text.__proto__ !== Number.prototype)){
+    if ((text.constructor.prototype !== String.prototype) &&
+        (text.constructor.prototype !== Number.prototype)){
         return text;
     } else {
         return document.createTextNode(text);
