@@ -1,4 +1,4 @@
-REPORTER = dot
+REPORTER = spec
 
 
 all: web-based cli-based
